@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { PublicFeed } from '@/components/PublicFeed';
 import { MyLibrary } from '@/components/MyLibrary';
-import { BgmPlayer } from '@/components/BgmPlayer';
 import { CardViewerModal } from '@/components/CardViewerModal';
 import { LoginScreen } from '@/components/LoginScreen';
 import { KakaoCallback } from '@/components/KakaoCallback';
@@ -11,7 +10,6 @@ import { AIBookChat, type SaveData } from '@/components/AIBookChat';
 import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
 import { useCards } from '@/hooks/useCards';
-import { useBgm } from '@/hooks/useBgm';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import type { ReadingCard } from '@/types';
@@ -31,7 +29,6 @@ function App() {
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
   const { cards, addCard } = useCards();
-  const bgm = useBgm();
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -144,15 +141,6 @@ function App() {
       </main>
 
       <BottomNav active={tab} onChange={setTab} />
-
-      <BgmPlayer
-        isPlaying={bgm.isPlaying}
-        currentTrack={bgm.currentTrack}
-        volume={bgm.volume}
-        onToggle={bgm.toggle}
-        onStop={bgm.stop}
-        onVolumeChange={bgm.setVolume}
-      />
 
       <CardViewerModal
         card={viewCard}
