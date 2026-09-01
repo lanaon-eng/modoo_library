@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
 
+const LOGO_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/asset/Gemini_Generated_Image_v2x2suv2x2suv2x2%20(1).png`;
+
 type Props = {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
@@ -28,7 +30,10 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200/60 bg-ink-50/80 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/80">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
-        <h1 className="text-[16px] font-bold tracking-tight">{title}</h1>
+        <div className="flex items-center gap-2">
+          <img src={LOGO_URL} alt="북톡" className="h-8 w-8 rounded-lg object-cover" />
+          <h1 className="text-[16px] font-bold tracking-tight">{title}</h1>
+        </div>
 
         <div className="flex items-center gap-1.5">
           <button
