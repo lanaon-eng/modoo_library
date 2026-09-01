@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { CharacterRole, ChatMessage } from '@/lib/chatScenario';
-import type { ChatCard } from '@/types';
+import type { ChatMessage, ChatCard } from '@/types';
 
 type ChatAction = 'chat' | 'summarize';
 
@@ -31,22 +30,6 @@ async function invokePersona(body: {
   const { data, error } = await supabase.functions.invoke('chat-persona', { body });
   if (error) throw new Error(error.message);
   return data as ApiResponse;
-}
-
-export async function fetchCharacterReply(
-  bookTitle: string,
-  bookContents: string,
-  role: CharacterRole,
-  messages: ChatMessage[]
-): Promise<string> {
-  const { data, error } = await supabase.functions.invoke('chat-with-character', {
-    body: { bookTitle, bookContents, role, messages: toApiMessages(messages) },
-  });
-  if (error) throw new Error(error.message);
-  const res = data as ApiResponse;
-  if (res.error) throw new Error(res.error);
-  if (!res.reply) throw new Error('Empty response');
-  return res.reply;
 }
 
 export async function fetchPersonaReply(

@@ -83,8 +83,8 @@ function App() {
         bookAuthor: data.book.authors.join(', '),
         thumbnail: data.book.thumbnail,
         coverUrls,
-        characterName: 'AI 페르소나',
-        characterEmoji: character?.emoji || '✨',
+        characterName: 'AI 북챗',
+        characterEmoji: '✨',
         insight: data.chatCards[1]?.content || data.userReview || '대화하며 깊이 생각해보았어요.',
         createdAt: Date.now(),
       };

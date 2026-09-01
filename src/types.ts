@@ -1,5 +1,11 @@
 export type Category = '국어' | '사회' | '과학기술' | '수학' | '도덕' | '예능';
 
+export type ChatMessage = {
+  id: string;
+  role: 'character' | 'user';
+  text: string;
+};
+
 export type ChatCard = {
   title: string;
   content: string;

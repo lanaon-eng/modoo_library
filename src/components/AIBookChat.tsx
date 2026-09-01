@@ -1,11 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Search, BookOpen, ArrowRight, ArrowLeft, X, Send,
-  Sparkles, Loader2, BookMarked, Globe, Lock,
+  Sparkles, Loader2, BookMarked, Globe,
 } from 'lucide-react';
-import type { SearchBook, Category, ChatCard } from '@/types';
-import type { CharacterRole, ChatMessage, CharacterProfile } from '@/lib/chatScenario';
-import { getCharacter, getClosing } from '@/lib/chatScenario';
+import type { SearchBook, Category, ChatCard, ChatMessage } from '@/types';
 import { fetchPersonaReply, generateChatCards } from '@/lib/chatApi';
 import { searchBooks } from '@/lib/search';
 import { CoverImage } from '@/components/CoverImage';
@@ -34,12 +32,6 @@ const CATEGORIES: { id: Category; label: string; emoji: string }[] = [
   { id: '예능', label: '예능', emoji: '🎨' },
 ];
 
-const ROLE_TABS: { id: CharacterRole; label: string; emoji: string }[] = [
-  { id: 'protagonist', label: '주인공', emoji: '🧑' },
-  { id: 'villain', label: '악당/라이벌', emoji: '😈' },
-  { id: 'helper', label: '조력자', emoji: '🧙' },
-];
-
 let msgIdCounter = 0;
 function makeMsgId() {
   return `msg-${++msgIdCounter}-${Date.now()}`;
@@ -55,14 +47,13 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   // Chat state
-  const [role, setRole] = useState<CharacterRole | null>(null);
-  const [character, setCharacter] = useState<CharacterProfile | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [userTurns, setUserTurns] = useState(0);
   const [canComplete, setCanComplete] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatStartedRef = useRef(false);
 
   // Card gen state
   const [chatCards, setChatCards] = useState<ChatCard[]>([]);
@@ -90,6 +81,29 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
     return () => clearTimeout(t);
   }, [query]);
 
+  // Auto-start chat when entering chat step
+  useEffect(() => {
+    if (step !== 'chat' || !selectedBook || !selectedCategory) return;
+    if (chatStartedRef.current) return;
+    chatStartedRef.current = true;
+
+    setTyping(true);
+    fetchPersonaReply(
+      selectedBook.title,
+      selectedBook.authors.join(', '),
+      selectedBook.contents,
+      []
+    )
+      .then((reply) => {
+        setTyping(false);
+        setMessages([{ id: makeMsgId(), role: 'character', text: reply }]);
+      })
+      .catch(() => {
+        setTyping(false);
+        setMessages([{ id: makeMsgId(), role: 'character', text: '이 책에 대해 어떤 점이 가장 기억에 남았나요? 자유롭게 이야기해보세요.' }]);
+      });
+  }, [step, selectedBook, selectedCategory]);
+
   // Auto-scroll chat
   useEffect(() => {
     if (scrollRef.current) {
@@ -104,38 +118,16 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
 
   const handleConfirmCategory = () => {
     if (selectedBook && selectedCategory) {
+      chatStartedRef.current = false;
+      setMessages([]);
+      setUserTurns(0);
+      setCanComplete(false);
       setStep('chat');
     }
   };
 
-  const selectRole = (r: CharacterRole) => {
-    if (!selectedBook || !selectedCategory) return;
-    const char = getCharacter(selectedBook.title, r);
-    setRole(r);
-    setCharacter(char);
-    setTyping(true);
-    setMessages([]);
-    setUserTurns(0);
-    setCanComplete(false);
-
-    fetchPersonaReply(
-      selectedBook.title,
-      selectedBook.authors.join(', '),
-      selectedBook.contents,
-      []
-    )
-      .then((reply) => {
-        setTyping(false);
-        setMessages([{ id: makeMsgId(), role: 'character', text: reply, chips: char.chips }]);
-      })
-      .catch(() => {
-        setTyping(false);
-        setMessages([{ id: makeMsgId(), role: 'character', text: char.greeting, chips: char.chips }]);
-      });
-  };
-
   const sendMessage = (text: string) => {
-    if (!text.trim() || !character || !selectedBook || !selectedCategory) return;
+    if (!text.trim() || !selectedBook || !selectedCategory) return;
     const userMsg: ChatMessage = { id: makeMsgId(), role: 'user', text: text.trim() };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -166,8 +158,8 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
   };
 
   const handleComplete = () => {
-    if (!role || !selectedBook) return;
-    const closingText = getClosing(selectedBook.title);
+    if (!selectedBook) return;
+    const closingText = '좋은 대화였어요! 우리가 나눈 이야기를 카드로 만들어볼까요?';
     const finalMessages = [...messages, { id: makeMsgId(), role: 'character' as const, text: closingText }];
     setMessages(finalMessages);
     setStep('cards');
@@ -210,8 +202,6 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
     setStep('search');
     setSelectedBook(null);
     setSelectedCategory(null);
-    setRole(null);
-    setCharacter(null);
     setMessages([]);
     setInput('');
     setUserTurns(0);
@@ -221,6 +211,7 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
     setQuery('');
     setResults([]);
     setSearched(false);
+    chatStartedRef.current = false;
   };
 
   // --- SEARCH STEP ---
@@ -321,7 +312,7 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
           disabled={!selectedCategory}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-40"
         >
-          캐릭터 선택하기
+          대화 시작하기
           <ArrowRight size={17} />
         </button>
       </div>
@@ -335,7 +326,7 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
         {/* Chat header */}
         <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3 dark:border-ink-800">
           <button
-            onClick={() => { setStep('category'); setRole(null); setCharacter(null); setMessages([]); }}
+            onClick={() => { setStep('category'); chatStartedRef.current = false; setMessages([]); }}
             className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800"
           >
             <ArrowLeft size={18} />
@@ -345,16 +336,16 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[14px] font-bold">
-              {character ? `${character.emoji} ${character.name}` : selectedBook.title}
+              {selectedBook.title}
             </p>
             <p className="truncate text-[11px] text-ink-400">
-              {character ? '페르소나와 대화 중' : '캐릭터를 선택해주세요'}
+              AI와 책 이야기 나누는 중
             </p>
           </div>
         </div>
 
         {/* Complete banner */}
-        {canComplete && role && (
+        {canComplete && (
           <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2 text-white animate-fade-in">
             <Sparkles size={15} />
             <button onClick={handleComplete} className="text-[13px] font-bold hover:opacity-90">
@@ -363,107 +354,63 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
           </div>
         )}
 
-        {/* Role selection or chat */}
-        {!role ? (
-          <div className="flex flex-1 flex-col items-center justify-center px-6 py-8">
-            <div className="mb-2 text-4xl">🎭</div>
-            <h2 className="text-[16px] font-bold">누구와 대화할까?</h2>
-            <p className="mt-1.5 max-w-[260px] text-center text-[12.5px] leading-relaxed text-ink-500 dark:text-ink-400">
-              책 속 페르소나를 골라보세요. 각자 다른 시선으로 질문을 던질 거예요.
-            </p>
-            <div className="mt-6 w-full space-y-3">
-              {ROLE_TABS.map((tab) => {
-                const char = getCharacter(selectedBook.title, tab.id);
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => selectRole(tab.id)}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-ink-200/70 bg-white p-3.5 text-left transition-all hover:scale-[1.02] hover:border-brand-400 hover:shadow-md dark:border-ink-800/70 dark:bg-ink-800/50 dark:hover:border-brand-500"
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-ink-100 to-ink-200 text-2xl dark:from-ink-700 dark:to-ink-800">
-                      {char.emoji}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[14px] font-bold">{tab.label}</p>
-                      <p className="text-[11.5px] text-ink-500 dark:text-ink-400">{char.name}</p>
-                    </div>
-                    <span className="text-[11px] font-semibold text-brand-500">대화하기</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <>
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-ink-50 px-4 py-4 no-scrollbar dark:bg-ink-950">
-              {messages.map((msg) => (
-                <div key={msg.id}>
-                  {msg.role === 'character' ? (
-                    <div className="flex items-start gap-2">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-base">
-                        {character?.emoji}
-                      </div>
-                      <div className="max-w-[78%]">
-                        <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm dark:bg-ink-800">
-                          {msg.text}
-                        </div>
-                        {msg.chips && msg.chips.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {msg.chips.map((chip, i) => (
-                              <button
-                                key={i}
-                                onClick={() => sendMessage(chip)}
-                                className="rounded-full border border-brand-300 bg-brand-50 px-3 py-1.5 text-[12px] font-semibold text-brand-700 transition-all hover:scale-105 hover:bg-brand-100 dark:border-brand-700 dark:bg-brand-900/20 dark:text-brand-300"
-                              >
-                                {chip}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-end">
-                      <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm">
-                        {msg.text}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {typing && (
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-ink-50 px-4 py-4 no-scrollbar dark:bg-ink-950">
+          {messages.map((msg) => (
+            <div key={msg.id}>
+              {msg.role === 'character' ? (
                 <div className="flex items-start gap-2">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-base">
-                    {character?.emoji}
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600">
+                    <Sparkles size={16} className="text-white" />
                   </div>
-                  <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm dark:bg-ink-800">
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:0ms] dark:bg-ink-500" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:150ms] dark:bg-ink-500" />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:300ms] dark:bg-ink-500" />
+                  <div className="max-w-[78%]">
+                    <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm dark:bg-ink-800">
+                      {msg.text}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-end">
+                  <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm">
+                    {msg.text}
                   </div>
                 </div>
               )}
             </div>
-            <div className="border-t border-ink-100 px-3 py-3 dark:border-ink-800">
-              <div className="flex items-center gap-2">
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-                  placeholder="메시지를 입력하세요..."
-                  className="flex-1 rounded-full border border-ink-200 bg-ink-50 px-4 py-2.5 text-[13px] font-medium outline-none transition-colors focus:border-brand-400 focus:bg-white dark:border-ink-700 dark:bg-ink-800 dark:focus:bg-ink-900"
-                />
-                <button
-                  onClick={() => sendMessage(input)}
-                  disabled={!input.trim()}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-white transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-40"
-                >
-                  <Send size={17} />
-                </button>
+          ))}
+          {typing && (
+            <div className="flex items-start gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600">
+                <Sparkles size={16} className="text-white" />
+              </div>
+              <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm dark:bg-ink-800">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:0ms] dark:bg-ink-500" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:150ms] dark:bg-ink-500" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:300ms] dark:bg-ink-500" />
               </div>
             </div>
-          </>
-        )}
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="border-t border-ink-100 px-3 py-3 dark:border-ink-800">
+          <div className="flex items-center gap-2">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
+              placeholder="메시지를 입력하세요..."
+              className="flex-1 rounded-full border border-ink-200 bg-ink-50 px-4 py-2.5 text-[13px] font-medium outline-none transition-colors focus:border-brand-400 focus:bg-white dark:border-ink-700 dark:bg-ink-800 dark:focus:bg-ink-900"
+            />
+            <button
+              onClick={() => sendMessage(input)}
+              disabled={!input.trim()}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-white transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-40"
+            >
+              <Send size={17} />
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

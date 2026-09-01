@@ -6,30 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-type ChatRole = "protagonist" | "villain" | "helper";
-
 type RequestBody = {
   bookTitle: string;
   bookAuthor?: string;
-  bookContents?: string;
+  userNote?: string;
   category?: string;
-  role: ChatRole;
+  action: "chat" | "summarize";
   messages: { role: "user" | "assistant"; content: string }[];
-};
-
-const ROLE_LABELS: Record<ChatRole, { label: string; desc: string }> = {
-  protagonist: {
-    label: "주인공",
-    desc: "책의 주인공으로서 독자와 대화합니다. 주인공의 감정, 선택, 성장을 중심으로 이야기합니다.",
-  },
-  villain: {
-    label: "악당/라이벌",
-    desc: "책의 악당이나 라이벌로서 독자와 대화합니다. 자신만의 논리와 입장을 가지고 있습니다.",
-  },
-  helper: {
-    label: "조력자",
-    desc: "책의 조력자/멘토로서 독자에게 지혜를 전합니다. 따뜻하면서도 깊이 있는 통찰을 줍니다.",
-  },
 };
 
 Deno.serve(async (req: Request) => {
@@ -39,19 +22,11 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { bookTitle, bookAuthor, bookContents, category, role, messages } = body;
+    const { bookTitle, bookAuthor, userNote, category, action, messages } = body;
 
-    if (!bookTitle || !role || !messages) {
+    if (!bookTitle || !messages || messages.length === 0) {
       return new Response(
-        JSON.stringify({ error: "bookTitle, role, messages are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    const roleInfo = ROLE_LABELS[role];
-    if (!roleInfo) {
-      return new Response(
-        JSON.stringify({ error: "Invalid role" }),
+        JSON.stringify({ error: "bookTitle, messages are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -64,17 +39,85 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const systemPrompt = `당신은 「${bookTitle}」${bookAuthor ? ` (저자: ${bookAuthor})` : ""}이라는 책 속의 ${roleInfo.label}입니다.
-${roleInfo.desc}
+    if (action === "summarize") {
+      const systemPrompt = `당신은 독서 토론을 요약하는 AI입니다. 다음 대화를 바탕으로 「${bookTitle}」에 대한 카드뉴스를 만들어주세요.
+
+규칙:
+- 정확히 3장의 카드를 JSON 배열 형식으로 출력하세요.
+- 각 카드는 { "title": string, "content": string, "emoji": string } 형식입니다.
+- title은 10자 이내의 짧은 제목입니다.
+- content는 60자 이내의 핵심 내용입니다.
+- emoji는 카드 주제를 나타내는 이모지 1개입니다.
+- JSON 외의 다른 텍스트는 출력하지 마세요.
+${userNote ? `\n책 소개: ${userNote}` : ""}`;
+
+      const openaiMessages = [
+        { role: "system" as const, content: systemPrompt },
+        ...messages.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
+      ];
+
+      const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${openaiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: openaiMessages,
+          max_tokens: 500,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!openaiRes.ok) {
+        const errText = await openaiRes.text();
+        return new Response(
+          JSON.stringify({ error: `OpenAI API error: ${openaiRes.status}`, detail: errText }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      const data = await openaiRes.json();
+      const reply = data.choices?.[0]?.message?.content;
+
+      if (!reply) {
+        return new Response(
+          JSON.stringify({ error: "Empty response from OpenAI" }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      try {
+        const cards = JSON.parse(reply);
+        return new Response(
+          JSON.stringify({ cards }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      } catch {
+        return new Response(
+          JSON.stringify({ reply }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
+    // Default: chat action
+    const systemPrompt = `당신은 독자와 함께 「${bookTitle}」${bookAuthor ? ` (저자: ${bookAuthor})` : ""}을(를) 깊이 있게 읽고 토론하는 AI 독서 파트너입니다.
 ${category ? `이 책은 ${category} 과목과 관련이 있습니다.` : ""}
 
 중요 규칙:
-- 항상 ${roleInfo.label}의 1인칭 시점으로 대화합니다.
-- 책의 내용과 세계관에 충실하게 응답합니다.
-- 독자에게 질문을 던지며 깊은 생각을 유도합니다.
+- 책의 내용에 기반하여 구체적인 장면, 인물, 주제를 언급하며 대화합니다.
+- 독자에게 책의 핵심 내용과 관련된 구체적인 질문을 던져 깊은 생각을 유도합니다.
+- 정답을 제시하지 않고, 독자가 스스로 생각할 수 있도록 열린 질문을 합니다.
+- 독자의 답변에 공감하며, 그 생각을 더 펼칠 수 있도록 유도합니다.
+- 첫 메시지에서는 책의 구체적인 내용이나 주제를 하나 짚으며 자연스럽게 대화를 시작하세요.
 - 응답은 2~4문장으로 자연스럽고 따뜻한 대화체로 작성합니다.
 - 한국어로 응답합니다.
-${bookContents ? `\n책 소개: ${bookContents}` : ""}`;
+${userNote ? `\n책 소개: ${userNote}` : ""}`;
 
     const openaiMessages = [
       { role: "system" as const, content: systemPrompt },
