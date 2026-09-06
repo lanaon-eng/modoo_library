@@ -23,7 +23,7 @@ type Props = {
   onRemoveFromWishlist: (id: string) => void;
 };
 
-const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '도덕', '예능'];
+const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '도덕', '예능', '영어'];
 
 export function MyLibrary({
   books,

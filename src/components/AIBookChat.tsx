@@ -32,6 +32,7 @@ const CATEGORIES: { id: Category; label: string; emoji: string }[] = [
   { id: '수학', label: '수학', emoji: '🔢' },
   { id: '도덕', label: '도덕', emoji: '🤝' },
   { id: '예능', label: '예능', emoji: '🎨' },
+  { id: '영어', label: '영어', emoji: '🔤' },
 ];
 
 let msgIdCounter = 0;
