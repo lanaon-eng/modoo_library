@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { BookOpen, Trash2, Globe, Lock, ChevronDown, Send, Gift } from 'lucide-react';
 import type { Book, Category, ReadingCard, Recommendation } from '@/types';
-import { BookCoverDisplay } from '@/components/BookCoverDisplay';
+import { BookCardCarousel } from '@/components/BookCardCarousel';
 import { CoverImage } from '@/components/CoverImage';
 
 type Props = {
@@ -312,7 +312,6 @@ export function MyLibrary({
       ) : (
         <div className="space-y-4">
           {filteredBooks.map((book) => {
-            const coverUrls = book.coverUrls?.length ? book.coverUrls : book.thumbnail ? [book.thumbnail] : [];
             return (
               <article
                 key={book.id}
@@ -369,16 +368,7 @@ export function MyLibrary({
                 </div>
 
                 <div className="mt-3">
-                  <BookCoverDisplay
-                    urls={coverUrls}
-                    alt={book.title}
-                    fallback={
-                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-ink-300 dark:text-ink-600">
-                        <BookOpen size={36} strokeWidth={1.5} />
-                        <span className="text-[11px] font-medium">표지 없음</span>
-                      </div>
-                    }
-                  />
+                  <BookCardCarousel book={book} />
                 </div>
 
                 <div className="px-4 py-3.5">
