@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
+import { Moon, Sun, LogOut, ChevronDown, Pencil } from 'lucide-react';
 
 const LOGO_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/asset/Gemini_Generated_Image_v2x2suv2x2suv2x2%20(1).png`;
 
@@ -10,9 +10,10 @@ type Props = {
   nickname: string;
   avatarUrl: string | null;
   onSignOut: () => void;
+  onEditNickname: () => void;
 };
 
-export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSignOut }: Props) {
+export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSignOut, onEditNickname }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +84,16 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
                   </div>
                 </div>
                 <div className="mx-3 my-1 border-t border-ink-100 dark:border-ink-800" />
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEditNickname();
+                  }}
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-ink-600 transition-colors hover:bg-ink-50 dark:text-ink-300 dark:hover:bg-ink-800"
+                >
+                  <Pencil size={16} />
+                  닉네임 변경
+                </button>
                 <button
                   onClick={() => {
                     setMenuOpen(false);

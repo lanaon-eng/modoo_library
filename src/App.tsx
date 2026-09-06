@@ -7,6 +7,7 @@ import { LoginScreen } from '@/components/LoginScreen';
 import { KakaoCallback } from '@/components/KakaoCallback';
 import { BottomNav, type FeedTab } from '@/components/BottomNav';
 import { AIBookChat, type SaveData } from '@/components/AIBookChat';
+import { NicknameModal } from '@/components/NicknameModal';
 import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
 import { useCards } from '@/hooks/useCards';
@@ -25,6 +26,8 @@ function App() {
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<FeedTab>('all');
   const [viewCard, setViewCard] = useState<ReadingCard | null>(null);
+  const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
@@ -46,12 +49,16 @@ function App() {
     return <LoginScreen />;
   }
 
+  const hasKakaoProvider = user.user_metadata?.provider === 'kakao';
+  const hasCustomNickname = user.user_metadata?.nickname_set === true;
   const nickname =
     user.user_metadata?.full_name ||
     user.user_metadata?.name ||
     user.email?.split('@')[0] ||
     '독서러';
   const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+
+  const needsNicknameSetup = hasKakaoProvider && !hasCustomNickname;
 
   const handleSaveFromChat = async (data: SaveData) => {
     const coverUrls = data.book.coverUrls?.length
@@ -104,6 +111,17 @@ function App() {
     await supabase.auth.signOut();
   };
 
+  const handleOpenNicknameModal = () => {
+    setIsFirstLogin(needsNicknameSetup);
+    setNicknameModalOpen(true);
+  };
+
+  const handleNicknameSaved = (newNickname: string) => {
+    setNicknameModalOpen(false);
+    setIsFirstLogin(false);
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-ink-50 dark:bg-ink-950">
       <Header
@@ -113,6 +131,10 @@ function App() {
         nickname={nickname}
         avatarUrl={avatarUrl}
         onSignOut={handleSignOut}
+        onEditNickname={() => {
+          setIsFirstLogin(false);
+          setNicknameModalOpen(true);
+        }}
       />
       <main className="mx-auto max-w-md pb-20">
         {tab === 'all' && (
@@ -147,6 +169,14 @@ function App() {
         open={!!viewCard}
         onClose={() => setViewCard(null)}
         nickname={nickname}
+      />
+
+      <NicknameModal
+        open={nicknameModalOpen || needsNicknameSetup}
+        currentNickname={nickname}
+        isFirstLogin={isFirstLogin || needsNicknameSetup}
+        onClose={() => setNicknameModalOpen(false)}
+        onSaved={handleNicknameSaved}
       />
     </div>
   );
