@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Search, BookOpen, ArrowRight, ArrowLeft, X, Send,
-  Sparkles, Loader2, BookMarked, Globe,
+  Sparkles, Loader2, BookMarked, Globe, Bookmark, Check,
 } from 'lucide-react';
 import type { SearchBook, Category, ChatCard, ChatMessage } from '@/types';
 import { fetchPersonaReply, generateChatCards } from '@/lib/chatApi';
@@ -11,6 +11,8 @@ import { CoverImage } from '@/components/CoverImage';
 type Props = {
   onSave: (data: SaveData) => void;
   existingBookTitles: string[];
+  wishlistTitles: Set<string>;
+  onToggleWishlist: (book: SearchBook) => void;
 };
 
 export type SaveData = {
@@ -37,7 +39,7 @@ function makeMsgId() {
   return `msg-${++msgIdCounter}-${Date.now()}`;
 }
 
-export function AIBookChat({ onSave, existingBookTitles }: Props) {
+export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist }: Props) {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchBook[]>([]);
@@ -254,11 +256,12 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
             <ul className="space-y-2.5">
               {results.map((book) => {
                 const exists = existingBookTitles.some((t) => t === book.title);
+                const inWishlist = wishlistTitles.has(book.title);
                 return (
-                  <li key={book.id}>
+                  <li key={book.id} className="flex items-center gap-2">
                     <button
                       onClick={() => handleSelectBook(book)}
-                      className="flex w-full items-center gap-3 rounded-2xl border border-ink-200/70 bg-white p-2.5 text-left transition-all hover:border-brand-400 hover:shadow-md dark:border-ink-800/70 dark:bg-ink-900 dark:hover:border-brand-500"
+                      className="flex flex-1 items-center gap-3 rounded-2xl border border-ink-200/70 bg-white p-2.5 text-left transition-all hover:border-brand-400 hover:shadow-md dark:border-ink-800/70 dark:bg-ink-900 dark:hover:border-brand-500"
                     >
                       <BookThumb book={book} />
                       <div className="min-w-0 flex-1">
@@ -270,6 +273,17 @@ export function AIBookChat({ onSave, existingBookTitles }: Props) {
                       {exists && (
                         <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[10px] font-bold text-ink-400 dark:bg-ink-800">보유</span>
                       )}
+                    </button>
+                    <button
+                      onClick={() => onToggleWishlist(book)}
+                      aria-label="보관함"
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-90 ${
+                        inWishlist
+                          ? 'border-brand-500 bg-brand-50 text-brand-500 dark:bg-brand-900/20'
+                          : 'border-ink-200 bg-white text-ink-400 hover:border-brand-400 hover:text-brand-500 dark:border-ink-700 dark:bg-ink-900'
+                      }`}
+                    >
+                      {inWishlist ? <Check size={18} /> : <Bookmark size={18} />}
                     </button>
                   </li>
                 );

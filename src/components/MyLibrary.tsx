@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { BookOpen, Trash2, Globe, Lock, ChevronDown, Send, Gift } from 'lucide-react';
-import type { Book, Category, ReadingCard, Recommendation } from '@/types';
+import { BookOpen, Trash2, Globe, Lock, ChevronDown, Send, Gift, Bookmark, X } from 'lucide-react';
+import type { Book, Category, ReadingCard, Recommendation, WishlistBook } from '@/types';
 import { BookCardCarousel } from '@/components/BookCardCarousel';
 import { CoverImage } from '@/components/CoverImage';
 
@@ -19,6 +19,8 @@ type Props = {
   unreadRecCount: number;
   onMarkAllRecsRead: () => void;
   onRecommend: (book: Book) => void;
+  wishlist: WishlistBook[];
+  onRemoveFromWishlist: (id: string) => void;
 };
 
 const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '도덕', '예능'];
@@ -38,6 +40,8 @@ export function MyLibrary({
   unreadRecCount,
   onMarkAllRecsRead,
   onRecommend,
+  wishlist,
+  onRemoveFromWishlist,
 }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
@@ -46,6 +50,7 @@ export function MyLibrary({
   const [monthOpen, setMonthOpen] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [recSectionOpen, setRecSectionOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   const availableYears = useMemo(() => {
     const years = new Set<number>();
@@ -95,6 +100,63 @@ export function MyLibrary({
           </div>
         </div>
       </div>
+
+      {/* Wishlist section */}
+      {wishlist.length > 0 && (
+        <div className="mb-5">
+          <button
+            onClick={() => setWishlistOpen(!wishlistOpen)}
+            className="flex w-full items-center justify-between rounded-xl bg-ink-100 px-4 py-3 dark:bg-ink-800/60"
+          >
+            <div className="flex items-center gap-2">
+              <Bookmark size={16} className="text-ink-500 dark:text-ink-300" />
+              <span className="text-[13px] font-bold text-ink-600 dark:text-ink-300">나중에 읽을 책</span>
+              <span className="rounded-full bg-ink-200 px-1.5 py-0.5 text-[10px] font-bold text-ink-500 dark:bg-ink-700 dark:text-ink-300">
+                {wishlist.length}
+              </span>
+            </div>
+            <ChevronDown
+              size={16}
+              className={`text-ink-400 transition-transform ${wishlistOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {wishlistOpen && (
+            <div className="mt-2 space-y-2">
+              {wishlist.map((item) => {
+                const urls = item.coverUrls?.length ? item.coverUrls : item.thumbnail ? [item.thumbnail] : [];
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 rounded-xl border border-ink-200/70 bg-white p-3 dark:border-ink-800/70 dark:bg-ink-900"
+                  >
+                    {urls.length > 0 ? (
+                      <img src={urls[0]} alt={item.bookTitle} className="h-14 w-10 rounded object-cover" />
+                    ) : (
+                      <div className="flex h-14 w-10 items-center justify-center rounded bg-ink-200 dark:bg-ink-700">
+                        <BookOpen size={16} className="text-ink-400" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-bold">{item.bookTitle}</p>
+                      <p className="truncate text-[11px] text-ink-400">{item.bookAuthor}</p>
+                      {item.bookContents && (
+                        <p className="mt-1 line-clamp-2 text-[11px] text-ink-500 dark:text-ink-400">{item.bookContents}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => onRemoveFromWishlist(item.id)}
+                      aria-label="보관함에서 삭제"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-red-500 dark:hover:bg-ink-800"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recommended books section */}
       {recommendations.length > 0 && (

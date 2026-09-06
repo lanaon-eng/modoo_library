@@ -15,8 +15,9 @@ import { useCards } from '@/hooks/useCards';
 import { useAuth } from '@/hooks/useAuth';
 import { useFollows } from '@/hooks/useFollows';
 import { useRecommendations } from '@/hooks/useRecommendations';
+import { useWishlist } from '@/hooks/useWishlist';
 import { supabase } from '@/lib/supabase';
-import type { ReadingCard, Book } from '@/types';
+import type { ReadingCard, Book, SearchBook } from '@/types';
 
 const TAB_TITLES: Record<FeedTab, string> = {
   all: '모두의 서재',
@@ -38,6 +39,7 @@ function App() {
   const { cards, addCard } = useCards();
   const { followingIds, followerCount, followingCount, followingList, toggleFollow, refetch: refetchFollows } = useFollows(user);
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
+  const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -134,6 +136,15 @@ function App() {
     markAllAsRead();
   };
 
+  const handleToggleWishlist = async (book: SearchBook) => {
+    if (isInWishlist(book.title)) {
+      const item = wishlist.find((w) => w.bookTitle === book.title);
+      if (item) removeFromWishlist(item.id);
+    } else {
+      await addToWishlist(book);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-ink-50 dark:bg-ink-950">
       <Header
@@ -166,6 +177,8 @@ function App() {
           <AIBookChat
             onSave={handleSaveFromChat}
             existingBookTitles={myBooks.map((b) => b.title)}
+            wishlistTitles={new Set(wishlist.map((w) => w.bookTitle))}
+            onToggleWishlist={handleToggleWishlist}
           />
         )}
         {tab === 'mine' && (
@@ -184,6 +197,8 @@ function App() {
             unreadRecCount={unreadRecCount}
             onMarkAllRecsRead={handleMarkAllRecsRead}
             onRecommend={(book) => setRecommendBook(book)}
+            wishlist={wishlist}
+            onRemoveFromWishlist={removeFromWishlist}
           />
         )}
       </main>

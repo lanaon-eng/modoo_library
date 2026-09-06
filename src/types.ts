@@ -62,6 +62,19 @@ export type FollowUser = {
   avatarUrl: string | null;
 };
 
+export type WishlistBook = {
+  id: string;
+  bookTitle: string;
+  bookAuthor: string;
+  bookPublisher: string;
+  thumbnail: string;
+  coverUrls: string[];
+  bookUrl: string;
+  bookContents: string;
+  externalId: string | null;
+  addedAt: number;
+};
+
 export type Recommendation = {
   id: string;
   senderId: string;
