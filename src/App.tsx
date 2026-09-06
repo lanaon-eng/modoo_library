@@ -9,6 +9,7 @@ import { BottomNav, type FeedTab } from '@/components/BottomNav';
 import { AIBookChat, type SaveData } from '@/components/AIBookChat';
 import { NicknameModal } from '@/components/NicknameModal';
 import { RecommendModal } from '@/components/RecommendModal';
+import { FollowListModal } from '@/components/FollowListModal';
 import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,10 +33,12 @@ function App() {
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [recommendBook, setRecommendBook] = useState<Book | null>(null);
+  const [followListTab, setFollowListTab] = useState<'following' | 'followers'>('following');
+  const [followListOpen, setFollowListOpen] = useState(false);
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
-  const { followingIds, followerCount, followingCount, followingList, toggleFollow, refetch: refetchFollows } = useFollows(user);
+  const { followingIds, pendingFollowingIds, followerCount, followingCount, followingList, followerList, pendingRequests, toggleFollow, acceptFollowRequest, rejectFollowRequest, fetchFollowers, fetchPendingRequests, refetch: refetchFollows } = useFollows(user);
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
 
@@ -154,6 +157,7 @@ function App() {
             likedIds={likedIdsAll}
             onToggleLike={toggleLikeAll}
             followingIds={followingIds}
+            pendingFollowingIds={pendingFollowingIds}
             onToggleFollow={(userId) => {
               toggleFollow(userId);
               refetchFollows();
@@ -180,12 +184,19 @@ function App() {
             avatarUrl={avatarUrl}
             followerCount={followerCount}
             followingCount={followingCount}
+            pendingFollowerCount={pendingRequests.length}
             recommendations={recommendations}
             unreadRecCount={unreadRecCount}
             onMarkAllRecsRead={handleMarkAllRecsRead}
             onRecommend={(book) => setRecommendBook(book)}
             wishlist={wishlist}
             onRemoveFromWishlist={removeFromWishlist}
+            onOpenFollowList={(tab) => {
+              setFollowListTab(tab);
+              setFollowListOpen(true);
+              fetchFollowers();
+              fetchPendingRequests();
+            }}
           />
         )}
       </main>
@@ -212,9 +223,25 @@ function App() {
       <RecommendModal
         open={!!recommendBook}
         book={recommendBook}
-        followingList={followingList}
+        followingList={followingList.filter((f) => followerList.some((fol) => fol.id === f.id && fol.status === 'accepted'))}
         onSend={handleSendRecommendation}
         onClose={() => setRecommendBook(null)}
+      />
+
+      <FollowListModal
+        open={followListOpen}
+        initialTab={followListTab}
+        followingList={followingList}
+        followerList={followerList}
+        onClose={() => setFollowListOpen(false)}
+        onAccept={(followerId) => {
+          acceptFollowRequest(followerId);
+          refetchFollows();
+        }}
+        onReject={(followerId) => {
+          rejectFollowRequest(followerId);
+          refetchFollows();
+        }}
       />
     </div>
   );

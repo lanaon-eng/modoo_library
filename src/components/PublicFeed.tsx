@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Heart, BookOpen, Search, X, UserPlus, Check } from 'lucide-react';
+import { Heart, BookOpen, Search, X, UserPlus, Check, Clock } from 'lucide-react';
 import type { Book } from '@/types';
 import { BookCardCarousel } from './BookCardCarousel';
 
@@ -8,11 +8,12 @@ type Props = {
   likedIds: Set<string>;
   onToggleLike: (postId: string) => void;
   followingIds: Set<string>;
+  pendingFollowingIds: Set<string>;
   onToggleFollow: (userId: string) => void;
   currentUserId: string;
 };
 
-export function PublicFeed({ books, likedIds, onToggleLike, followingIds, onToggleFollow, currentUserId }: Props) {
+export function PublicFeed({ books, likedIds, onToggleLike, followingIds, pendingFollowingIds, onToggleFollow, currentUserId }: Props) {
   const [query, setQuery] = useState('');
   const [feedScope, setFeedScope] = useState<'all' | 'following'>('all');
 
@@ -102,6 +103,7 @@ export function PublicFeed({ books, likedIds, onToggleLike, followingIds, onTogg
             isLiked={likedIds.has(book.id)}
             onToggleLike={() => onToggleLike(book.id)}
             isFollowing={book.authorId ? followingIds.has(book.authorId) : false}
+            isPending={book.authorId ? pendingFollowingIds.has(book.authorId) : false}
             onToggleFollow={() => book.authorId && onToggleFollow(book.authorId)}
             isOwnPost={book.authorId === currentUserId}
           />
@@ -131,6 +133,7 @@ function FeedPostCard({
   isLiked,
   onToggleLike,
   isFollowing,
+  isPending,
   onToggleFollow,
   isOwnPost,
 }: {
@@ -138,6 +141,7 @@ function FeedPostCard({
   isLiked: boolean;
   onToggleLike: () => void;
   isFollowing: boolean;
+  isPending: boolean;
   onToggleFollow: () => void;
   isOwnPost: boolean;
 }) {
@@ -169,11 +173,13 @@ function FeedPostCard({
             className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all active:scale-90 ${
               isFollowing
                 ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
-                : 'bg-brand-500 text-white hover:bg-brand-600'
+                : isPending
+                  ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                  : 'bg-brand-500 text-white hover:bg-brand-600'
             }`}
           >
-            {isFollowing ? <Check size={12} /> : <UserPlus size={12} />}
-            {isFollowing ? '팔로잉' : '팔로우'}
+            {isFollowing ? <Check size={12} /> : isPending ? <Clock size={12} /> : <UserPlus size={12} />}
+            {isFollowing ? '팔로잉' : isPending ? '대기중' : '팔로우'}
           </button>
         )}
       </div>

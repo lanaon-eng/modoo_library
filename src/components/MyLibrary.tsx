@@ -13,12 +13,14 @@ type Props = {
   avatarUrl: string | null;
   followerCount: number;
   followingCount: number;
+  pendingFollowerCount: number;
   recommendations: Recommendation[];
   unreadRecCount: number;
   onMarkAllRecsRead: () => void;
   onRecommend: (book: Book) => void;
   wishlist: WishlistBook[];
   onRemoveFromWishlist: (id: string) => void;
+  onOpenFollowList: (tab: 'following' | 'followers') => void;
 };
 
 const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '도덕', '예능', '영어'];
@@ -33,12 +35,14 @@ export function MyLibrary({
   avatarUrl,
   followerCount,
   followingCount,
+  pendingFollowerCount,
   recommendations,
   unreadRecCount,
   onMarkAllRecsRead,
   onRecommend,
   wishlist,
   onRemoveFromWishlist,
+  onOpenFollowList,
 }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
@@ -86,14 +90,19 @@ export function MyLibrary({
           </div>
         </div>
         <div className="mt-3 flex gap-6 border-t border-slate-100 pt-3 dark:border-slate-800">
-          <div>
+          <button onClick={() => onOpenFollowList('following')} className="text-left transition-opacity hover:opacity-70">
             <span className="text-[15px] font-bold">{followingCount}</span>
             <span className="ml-1 text-[11px] text-slate-400">팔로잉</span>
-          </div>
-          <div>
+          </button>
+          <button onClick={() => onOpenFollowList('followers')} className="text-left transition-opacity hover:opacity-70">
             <span className="text-[15px] font-bold">{followerCount}</span>
             <span className="ml-1 text-[11px] text-slate-400">팔로워</span>
-          </div>
+            {pendingFollowerCount > 0 && (
+              <span className="ml-1 rounded-full bg-accent-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                {pendingFollowerCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -194,7 +203,7 @@ export function MyLibrary({
                       : 'border-brand-300 bg-brand-50/50 dark:border-brand-700 dark:bg-brand-900/10'
                   }`}
                 >
-                  {rec.coverUrl.length > 0 ? (
+                  {rec.coverUrls.length > 0 ? (
                     <img src={rec.coverUrl || rec.coverUrls[0]} alt={rec.bookTitle} className="h-14 w-10 rounded object-cover" />
                   ) : (
                     <div className="flex h-14 w-10 items-center justify-center rounded bg-slate-200 dark:bg-slate-700">

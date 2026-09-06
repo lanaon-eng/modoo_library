@@ -49,6 +49,15 @@ export type FollowUser = {
   avatarUrl: string | null;
 };
 
+export type FollowStatus = 'pending' | 'accepted';
+
+export type FollowerUser = {
+  id: string;
+  nickname: string;
+  avatarUrl: string | null;
+  status: FollowStatus;
+};
+
 export type WishlistBook = {
   id: string;
   bookTitle: string;

@@ -86,6 +86,12 @@ export function useRecommendations(user: User | null) {
   const sendRecommendation = useCallback(
     async (receiverId: string, postId: string, message?: string) => {
       if (!user) return { error: '로그인이 필요합니다' };
+      const { data: isMutual } = await supabase.rpc('check_mutual_follow', {
+        other_user_id: receiverId,
+      });
+      if (!isMutual) {
+        return { error: '맞팔로우한 친구에게만 추천을 보낼 수 있어요' };
+      }
       const { error } = await supabase.from('recommendations').insert({
         sender_id: user.id,
         receiver_id: receiverId,

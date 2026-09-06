@@ -92,8 +92,8 @@ export function RecommendModal({ open, book, followingList, onSend, onClose }: P
             <p className="mt-4 text-[12px] font-semibold text-slate-500 dark:text-slate-400">추천할 친구</p>
             {followingList.length === 0 ? (
               <div className="mt-2 rounded-xl border border-dashed border-slate-200 py-6 text-center dark:border-slate-700">
-                <p className="text-[12px] text-slate-400">팔로우한 친구가 없어요</p>
-                <p className="mt-1 text-[11px] text-slate-400">피드에서 사용자를 팔로우한 후 추천할 수 있어요</p>
+                <p className="text-[12px] text-slate-400">맞팔로우한 친구가 없어요</p>
+                <p className="mt-1 text-[11px] text-slate-400">서로 팔로우한 친구에게만 추천을 보낼 수 있어요</p>
               </div>
             ) : (
               <div className="mt-2 max-h-40 space-y-1.5 overflow-y-auto no-scrollbar">

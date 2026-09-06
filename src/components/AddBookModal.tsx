@@ -149,7 +149,7 @@ export function AddBookModal({ open, onClose, onAdd, existingIds }: Props) {
                 검색어를 입력하면 책을 찾아드릴게요
               </p>
             </div>
-          )}}
+          )}
 
           {!loading && results.length > 0 && (
             <ul className="space-y-2.5">
