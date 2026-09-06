@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { BookOpen, ChevronDown, Send, Gift, Bookmark, X, BookMarked } from 'lucide-react';
+import { BookOpen, ChevronDown, Filter, Gift, Bookmark, X, BookMarked } from 'lucide-react';
 import type { Book, Category, Recommendation, WishlistBook, CurrentlyReading } from '@/types';
 import { CoverImage } from '@/components/CoverImage';
 
@@ -55,6 +55,7 @@ export function MyLibrary({
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const [yearOpen, setYearOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [recSectionOpen, setRecSectionOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
 
@@ -75,7 +76,7 @@ export function MyLibrary({
   }, [books, selectedCategory, selectedYear, selectedMonth]);
 
   return (
-    <div className="px-4 py-4">
+    <div className="flex flex-col px-4 py-4">
       {/* Profile card */}
       <div className="mb-5 rounded-2xl border border-slate-100/80 bg-white p-4 shadow-card dark:border-slate-800/70 dark:bg-slate-900">
         <div className="flex items-center gap-3">
@@ -114,7 +115,7 @@ export function MyLibrary({
 
       {/* Currently reading section */}
       {currentlyReading.length > 0 && (
-        <div className="mb-5">
+        <div className="order-1 mb-5">
           <div className="mb-2 flex items-center gap-2">
             <BookMarked size={15} className="text-brand-500" />
             <h2 className="text-[14px] font-bold">읽는 중인 책 {currentlyReading.length}권</h2>
@@ -163,7 +164,7 @@ export function MyLibrary({
 
       {/* Wishlist section */}
       {wishlist.length > 0 && (
-        <div className="mb-5">
+        <div className="order-4 mb-5">
           <button
             onClick={() => setWishlistOpen(!wishlistOpen)}
             className="flex w-full items-center justify-between rounded-xl bg-slate-100 px-4 py-3 dark:bg-slate-800/60"
@@ -220,7 +221,7 @@ export function MyLibrary({
 
       {/* Recommended books section */}
       {recommendations.length > 0 && (
-        <div className="mb-5">
+        <div className="order-5 mb-5">
           <button
             onClick={() => setRecSectionOpen(!recSectionOpen)}
             className="flex w-full items-center justify-between rounded-xl bg-brand-50 px-4 py-3 dark:bg-brand-900/20"
@@ -284,84 +285,60 @@ export function MyLibrary({
       )}
 
       {/* Filter bar */}
-      <div className="mb-4 space-y-2.5">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => { setYearOpen(!yearOpen); setMonthOpen(false); }}
-              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-500 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-            >
-              {selectedYear === 'all' ? '연도' : `${selectedYear}년`}
-              <ChevronDown size={13} />
-            </button>
-            {yearOpen && (
-              <div className="absolute left-0 top-full z-10 mt-1 w-24 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-card dark:border-slate-700 dark:bg-slate-900">
-                <button
-                  onClick={() => { setSelectedYear('all'); setYearOpen(false); }}
-                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                    selectedYear === 'all' ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
-                  }`}
-                >
-                  전체
-                </button>
-                {availableYears.map((y) => (
-                  <button
-                    key={y}
-                    onClick={() => { setSelectedYear(y); setYearOpen(false); }}
-                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                      selectedYear === y ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
-                    }`}
-                  >
-                    {y}년
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <button
-              onClick={() => setMonthOpen(!monthOpen)}
-              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-500 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-            >
-              {selectedMonth === 'all' ? '월' : `${selectedMonth}월`}
-              <ChevronDown size={13} />
-            </button>
-            {monthOpen && (
-              <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-20 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-card dark:border-slate-700 dark:bg-slate-900 no-scrollbar">
-                <button
-                  onClick={() => { setSelectedMonth('all'); setMonthOpen(false); }}
-                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                    selectedMonth === 'all' ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
-                  }`}
-                >
-                  전체
-                </button>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => { setSelectedMonth(m); setMonthOpen(false); }}
-                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                      selectedMonth === m ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
-                    }`}
-                  >
-                    {m}월
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="order-2 relative mb-4 flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto no-scrollbar">
           <CategoryChip label="전체" active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
           {CATEGORIES.map((cat) => (
             <CategoryChip key={cat} label={cat} active={selectedCategory === cat} onClick={() => setSelectedCategory(cat)} />
           ))}
         </div>
+        <button
+          onClick={() => setFilterOpen(!filterOpen)}
+          className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+            selectedYear !== 'all' || selectedMonth !== 'all'
+              ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-900/20 dark:text-brand-400'
+              : 'border-slate-200 bg-white text-slate-500 hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+          }`}
+        >
+          <Filter size={13} />
+          필터
+          {(selectedYear !== 'all' || selectedMonth !== 'all') && <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />}
+        </button>
+        {filterOpen && (
+          <div className="absolute right-0 top-full z-20 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-3 shadow-card dark:border-slate-700 dark:bg-slate-900">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[12px] font-bold">읽은 책 필터</p>
+              <button
+                onClick={() => { setSelectedYear('all'); setSelectedMonth('all'); setFilterOpen(false); }}
+                className="text-[11px] font-semibold text-brand-500"
+              >
+                초기화
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] font-semibold text-slate-600 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                <option value="all">모든 연도</option>
+                {availableYears.map((year) => <option key={year} value={year}>{year}년</option>)}
+              </select>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] font-semibold text-slate-600 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                <option value="all">모든 월</option>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => <option key={month} value={month}>{month}월</option>)}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Book gallery */}
+      <div className="order-3">
       <div className="mb-3 flex items-center gap-2">
         <BookOpen size={15} className="text-slate-400" />
         <h2 className="text-[14px] font-bold">내가 읽은 책 {filteredBooks.length}권</h2>
@@ -436,6 +413,7 @@ export function MyLibrary({
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }
