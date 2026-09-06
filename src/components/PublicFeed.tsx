@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Heart, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Heart, BookOpen, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import type { Book } from '@/types';
 import { BookCoverDisplay } from './BookCoverDisplay';
 
@@ -10,6 +10,18 @@ type Props = {
 };
 
 export function PublicFeed({ books, likedIds, onToggleLike }: Props) {
+  const [query, setQuery] = useState('');
+
+  const filteredBooks = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return books;
+    return books.filter((b) => {
+      const titleMatch = b.title.toLowerCase().includes(q);
+      const authorMatch = b.authors.some((a) => a.toLowerCase().includes(q));
+      return titleMatch || authorMatch;
+    });
+  }, [books, query]);
+
   if (books.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
@@ -24,14 +36,54 @@ export function PublicFeed({ books, likedIds, onToggleLike }: Props) {
 
   return (
     <div className="space-y-5 px-4 py-4">
-      {books.map((book) => (
-        <FeedPostCard
-          key={book.id}
-          book={book}
-          isLiked={likedIds.has(book.id)}
-          onToggleLike={() => onToggleLike(book.id)}
-        />
-      ))}
+      {/* Search bar */}
+      <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-ink-50/95 dark:bg-ink-950/95 backdrop-blur-sm">
+        <div className="relative">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="책 제목 또는 저자를 검색하세요"
+            className="w-full rounded-full border border-ink-200 bg-white py-2.5 pl-9 pr-9 text-[13px] font-medium text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-100 dark:placeholder:text-ink-600"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-ink-600 dark:hover:text-ink-200"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        {query && (
+          <p className="mt-2 px-1 text-[11px] font-medium text-ink-400">
+            '{query}' 검색 결과 {filteredBooks.length}개
+          </p>
+        )}
+      </div>
+
+      {filteredBooks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-100 text-ink-300 dark:bg-ink-800 dark:text-ink-600">
+            <Search size={28} strokeWidth={1.5} />
+          </div>
+          <h2 className="mt-4 text-[15px] font-bold">검색 결과가 없어요</h2>
+          <p className="mt-1.5 text-[12px] text-ink-400">다른 책 제목이나 저자로 검색해보세요</p>
+        </div>
+      ) : (
+        filteredBooks.map((book) => (
+          <FeedPostCard
+            key={book.id}
+            book={book}
+            isLiked={likedIds.has(book.id)}
+            onToggleLike={() => onToggleLike(book.id)}
+          />
+        ))
+      )}
     </div>
   );
 }
