@@ -181,79 +181,81 @@ function App() {
         }}
       />
       <main className="mx-auto max-w-md pb-20">
-        {tab === 'all' && (
-          <PublicFeed
-            books={allBooks}
-            likedIds={likedIdsAll}
-            onToggleLike={toggleLikeAll}
-            followingIds={followingIds}
-            pendingFollowingIds={pendingFollowingIds}
-            onToggleFollow={(userId) => {
-              toggleFollow(userId);
-              refetchFollows();
-            }}
-            currentUserId={user.id}
-          />
-        )}
-        {tab === 'chat' && (
-          <AIBookChat
-            onSave={handleSaveFromChat}
-            existingBookTitles={myBooks.map((b) => b.title)}
-            wishlistTitles={new Set(wishlist.map((w) => w.bookTitle))}
-            onToggleWishlist={handleToggleWishlist}
-            readingNotes={readingNotes}
-            onAddNote={addReadingNote}
+        {readingBook ? (
+          <ReadingNotePage
+            book={readingBook}
+            notes={getNotesForBook(readingBook.bookTitle)}
+            onAddNote={(content, noteType) => addReadingNote(readingBook.bookTitle, readingBook.bookAuthor, content, noteType)}
             onDeleteNote={deleteReadingNote}
-            getNotesForBook={getNotesForBook}
-            presetBook={presetChatBook}
-            onPresetConsumed={() => setPresetChatBook(null)}
-            onAddCurrentlyReading={handleAddCurrentlyReading}
-            isCurrentlyReading={isReading}
+            onStartChat={() => handleStartChatFromReading(readingBook)}
+            onBack={() => setReadingBook(null)}
           />
-        )}
-        {tab === 'mine' && (
-          <MyLibrary
-            books={myBooks}
-            onRemove={removeBook}
-            onAdd={() => setTab('chat')}
-            onTogglePublish={handleTogglePublish}
-            onBookClick={(book) => setViewBook(book)}
-            nickname={nickname}
-            avatarUrl={avatarUrl}
-            followerCount={followerCount}
-            followingCount={followingCount}
-            pendingFollowerCount={pendingRequests.length}
-            recommendations={recommendations}
-            unreadRecCount={unreadRecCount}
-            onMarkAllRecsRead={handleMarkAllRecsRead}
-            onRecommend={(book) => setRecommendBook(book)}
-            wishlist={wishlist}
-            onRemoveFromWishlist={removeFromWishlist}
-            onOpenFollowList={(tab) => {
-              setFollowListTab(tab);
-              setFollowListOpen(true);
-              fetchFollowers();
-              fetchPendingRequests();
-            }}
-            currentlyReading={currentlyReading}
-            onReadingBookClick={(book) => setReadingBook(book)}
-            onRemoveReading={removeCurrentlyReading}
-          />
+        ) : (
+          <>
+            {tab === 'all' && (
+              <PublicFeed
+                books={allBooks}
+                likedIds={likedIdsAll}
+                onToggleLike={toggleLikeAll}
+                followingIds={followingIds}
+                pendingFollowingIds={pendingFollowingIds}
+                onToggleFollow={(userId) => {
+                  toggleFollow(userId);
+                  refetchFollows();
+                }}
+                currentUserId={user.id}
+              />
+            )}
+            {tab === 'chat' && (
+              <AIBookChat
+                onSave={handleSaveFromChat}
+                existingBookTitles={myBooks.map((b) => b.title)}
+                wishlistTitles={new Set(wishlist.map((w) => w.bookTitle))}
+                onToggleWishlist={handleToggleWishlist}
+                readingNotes={readingNotes}
+                onAddNote={addReadingNote}
+                onDeleteNote={deleteReadingNote}
+                getNotesForBook={getNotesForBook}
+                presetBook={presetChatBook}
+                onPresetConsumed={() => setPresetChatBook(null)}
+                onAddCurrentlyReading={handleAddCurrentlyReading}
+                isCurrentlyReading={isReading}
+              />
+            )}
+            {tab === 'mine' && (
+              <MyLibrary
+                books={myBooks}
+                onRemove={removeBook}
+                onAdd={() => setTab('chat')}
+                onTogglePublish={handleTogglePublish}
+                onBookClick={(book) => setViewBook(book)}
+                nickname={nickname}
+                avatarUrl={avatarUrl}
+                followerCount={followerCount}
+                followingCount={followingCount}
+                pendingFollowerCount={pendingRequests.length}
+                recommendations={recommendations}
+                unreadRecCount={unreadRecCount}
+                onMarkAllRecsRead={handleMarkAllRecsRead}
+                onRecommend={(book) => setRecommendBook(book)}
+                wishlist={wishlist}
+                onRemoveFromWishlist={removeFromWishlist}
+                onOpenFollowList={(tab) => {
+                  setFollowListTab(tab);
+                  setFollowListOpen(true);
+                  fetchFollowers();
+                  fetchPendingRequests();
+                }}
+                currentlyReading={currentlyReading}
+                onReadingBookClick={(book) => setReadingBook(book)}
+                onRemoveReading={removeCurrentlyReading}
+              />
+            )}
+          </>
         )}
       </main>
 
-      {readingBook && (
-        <ReadingNotePage
-          book={readingBook}
-          notes={getNotesForBook(readingBook.bookTitle)}
-          onAddNote={(content, noteType) => addReadingNote(readingBook.bookTitle, readingBook.bookAuthor, content, noteType)}
-          onDeleteNote={deleteReadingNote}
-          onStartChat={() => handleStartChatFromReading(readingBook)}
-          onBack={() => setReadingBook(null)}
-        />
-      )}
-
-      <BottomNav active={tab} onChange={setTab} />
+      {!readingBook && <BottomNav active={tab} onChange={setTab} />}
 
       <BookFeedModal
         book={viewBook}
