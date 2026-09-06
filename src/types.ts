@@ -71,6 +71,17 @@ export type WishlistBook = {
   addedAt: number;
 };
 
+export type NoteType = 'quote' | 'question' | 'thought' | 'puzzle';
+
+export type ReadingNote = {
+  id: string;
+  bookTitle: string;
+  bookAuthor: string | null;
+  content: string;
+  noteType: NoteType;
+  createdAt: number;
+};
+
 export type Recommendation = {
   id: string;
   senderId: string;

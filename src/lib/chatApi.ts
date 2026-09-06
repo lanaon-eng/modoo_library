@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { ChatMessage, ChatCard } from '@/types';
+import type { ChatMessage, ChatCard, ReadingNote } from '@/types';
 
 type ChatAction = 'chat' | 'summarize';
 
@@ -26,6 +26,7 @@ async function invokePersona(body: {
   userNote: string;
   messages: ApiMessage[];
   action: ChatAction;
+  readingNotes?: ReadingNote[];
 }): Promise<ApiResponse> {
   const { data, error } = await supabase.functions.invoke('chat-persona', { body });
   if (error) throw new Error(error.message);
@@ -37,7 +38,8 @@ export async function fetchPersonaReply(
   bookAuthor: string,
   userNote: string,
   messages: ChatMessage[],
-  isSummarizing: boolean = false
+  isSummarizing: boolean = false,
+  readingNotes?: ReadingNote[]
 ): Promise<string> {
   const data = await invokePersona({
     bookTitle,
@@ -45,6 +47,7 @@ export async function fetchPersonaReply(
     userNote,
     messages: toApiMessages(messages),
     action: isSummarizing ? 'summarize' : 'chat',
+    readingNotes,
   });
 
   if (data.error) throw new Error(data.error);
@@ -56,7 +59,8 @@ export async function generateChatCards(
   bookTitle: string,
   bookAuthor: string,
   userNote: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  readingNotes?: ReadingNote[]
 ): Promise<ChatCard[]> {
   const data = await invokePersona({
     bookTitle,
@@ -64,6 +68,7 @@ export async function generateChatCards(
     userNote,
     messages: toApiMessages(messages),
     action: 'summarize',
+    readingNotes,
   });
 
   if (data.error) throw new Error(data.error);

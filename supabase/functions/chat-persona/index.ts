@@ -6,6 +6,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+type ReadingNote = {
+  content: string;
+  noteType: string;
+  createdAt: string;
+};
+
 type RequestBody = {
   bookTitle: string;
   bookAuthor?: string;
@@ -13,7 +19,28 @@ type RequestBody = {
   category?: string;
   action: "chat" | "summarize";
   messages: { role: "user" | "assistant"; content: string }[];
+  readingNotes?: ReadingNote[];
 };
+
+function formatNotesForPrompt(notes: ReadingNote[] | undefined): string {
+  if (!notes || notes.length === 0) return "";
+
+  const typeLabels: Record<string, string> = {
+    quote: "인용",
+    question: "질문",
+    thought: "생각",
+    puzzle: "의아함",
+  };
+
+  const formatted = notes
+    .map((n, i) => {
+      const label = typeLabels[n.noteType] || "생각";
+      return `[${i + 1}] (${label}) ${n.content}`;
+    })
+    .join("\n");
+
+  return `\n\n[독자가 읽으며 남긴 메모]\n${formatted}\n\n중요: 위 메모는 독자가 책을 읽으면서 직접 기록한 것입니다. 이 메모들을 적극적으로 활용하세요:\n- 특정 메모를 인용하며 "메모에서 ~라고 하셨는데, 이 부분에 대해 더 깊이 생각해볼까요?" 같은 질문을 하세요.\n- 여러 메모 사이의 연관성을 짚어주세요. ("메모 1과 메모 3을 보면 ~라는 공통 주제가 보이는데, 어떻게 생각하시나요?")\n- 메모에 남긴 질문에 대해 책 내용과 연결하여 간접적으로 답을 유도하세요.\n- 메모가 없는 주제보다 메모에 있는 주제를 우선적으로 다루세요.`;
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -22,7 +49,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { bookTitle, bookAuthor, userNote, category, action, messages } = body;
+    const { bookTitle, bookAuthor, userNote, category, action, messages, readingNotes } = body;
 
     if (!bookTitle || !messages || messages.length === 0) {
       return new Response(
@@ -39,6 +66,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const notesSection = formatNotesForPrompt(readingNotes);
+
     if (action === "summarize") {
       const systemPrompt = `당신은 독서 토론을 요약하는 AI입니다. 다음 대화를 바탕으로 「${bookTitle}」에 대한 카드뉴스를 만들어주세요.
 
@@ -49,7 +78,8 @@ Deno.serve(async (req: Request) => {
 - content는 60자 이내의 핵심 내용입니다.
 - emoji는 카드 주제를 나타내는 이모지 1개입니다.
 - JSON 외의 다른 텍스트는 출력하지 마세요.
-${userNote ? `\n책 소개: ${userNote}` : ""}`;
+- 독자가 남긴 메모와 대화 내용을 반영하여 개인화된 카드를 만드세요.
+${userNote ? `\n책 소개: ${userNote}` : ""}${notesSection}`;
 
       const openaiMessages = [
         { role: "system" as const, content: systemPrompt },
@@ -117,7 +147,7 @@ ${category ? `이 책은 ${category} 과목과 관련이 있습니다.` : ""}
 - 첫 메시지에서는 책의 구체적인 내용이나 주제를 하나 짚으며 자연스럽게 대화를 시작하세요.
 - 응답은 2~4문장으로 자연스럽고 따뜻한 대화체로 작성합니다.
 - 한국어로 응답합니다.
-${userNote ? `\n책 소개: ${userNote}` : ""}`;
+${userNote ? `\n책 소개: ${userNote}` : ""}${notesSection}`;
 
     const openaiMessages = [
       { role: "system" as const, content: systemPrompt },

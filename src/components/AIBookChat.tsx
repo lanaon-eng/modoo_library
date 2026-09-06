@@ -2,17 +2,23 @@ import { useState, useRef, useEffect } from 'react';
 import {
   Search, BookOpen, ArrowRight, ArrowLeft, X, Send,
   Sparkles, Loader2, BookMarked, Globe, Bookmark, Check,
+  StickyNote,
 } from 'lucide-react';
-import type { SearchBook, Category, ChatCard, ChatMessage } from '@/types';
+import type { SearchBook, Category, ChatCard, ChatMessage, ReadingNote, NoteType } from '@/types';
 import { fetchPersonaReply, generateChatCards } from '@/lib/chatApi';
 import { searchBooks } from '@/lib/search';
 import { CoverImage } from '@/components/CoverImage';
+import { ReadingNotePanel } from '@/components/ReadingNotePanel';
 
 type Props = {
   onSave: (data: SaveData) => void;
   existingBookTitles: string[];
   wishlistTitles: Set<string>;
   onToggleWishlist: (book: SearchBook) => void;
+  readingNotes: ReadingNote[];
+  onAddNote: (bookTitle: string, bookAuthor: string | null, content: string, noteType: NoteType) => void;
+  onDeleteNote: (id: string) => void;
+  getNotesForBook: (bookTitle: string) => ReadingNote[];
 };
 
 export type SaveData = {
@@ -40,7 +46,7 @@ function makeMsgId() {
   return `msg-${++msgIdCounter}-${Date.now()}`;
 }
 
-export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist }: Props) {
+export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist, readingNotes, onAddNote, onDeleteNote, getNotesForBook }: Props) {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchBook[]>([]);
@@ -48,6 +54,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
   const [searched, setSearched] = useState(false);
   const [selectedBook, setSelectedBook] = useState<SearchBook | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -90,12 +97,15 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     if (chatStartedRef.current) return;
     chatStartedRef.current = true;
 
+    const bookNotes = getNotesForBook(selectedBook.title);
     setTyping(true);
     fetchPersonaReply(
       selectedBook.title,
       selectedBook.authors.join(', '),
       selectedBook.contents,
-      []
+      [],
+      false,
+      bookNotes
     )
       .then((reply) => {
         setTyping(false);
@@ -140,11 +150,14 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     const nextTurn = userTurns + 1;
     setUserTurns(nextTurn);
 
+    const bookNotes = getNotesForBook(selectedBook.title);
     fetchPersonaReply(
       selectedBook.title,
       selectedBook.authors.join(', '),
       selectedBook.contents,
-      newMessages
+      newMessages,
+      false,
+      bookNotes
     )
       .then((reply) => {
         setTyping(false);
@@ -168,11 +181,13 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     setStep('cards');
     setGeneratingCards(true);
 
+    const bookNotes = getNotesForBook(selectedBook.title);
     generateChatCards(
       selectedBook.title,
       selectedBook.authors.join(', '),
       selectedBook.contents,
-      finalMessages
+      finalMessages,
+      bookNotes
     )
       .then((cards) => {
         setChatCards(cards);
@@ -214,6 +229,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     setQuery('');
     setResults([]);
     setSearched(false);
+    setShowNotes(false);
     chatStartedRef.current = false;
   };
 
@@ -302,7 +318,17 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       <div className="px-4 py-4">
         <BookHeader book={selectedBook} />
 
-        <div className="mt-5">
+        {showNotes && (
+          <div className="mt-4">
+            <ReadingNotePanel
+              notes={getNotesForBook(selectedBook.title)}
+              onAdd={(content, noteType) => onAddNote(selectedBook.title, selectedBook.authors.join(', ') || null, content, noteType)}
+              onDelete={onDeleteNote}
+            />
+          </div>
+        )}
+
+        <div className={`mt-5 ${showNotes ? 'hidden' : ''}`}>
           <p className="mb-3 text-[13px] font-bold">과목 선택</p>
           <div className="grid grid-cols-3 gap-2">
             {CATEGORIES.map((cat) => (
@@ -322,14 +348,28 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
           </div>
         </div>
 
-        <button
-          onClick={handleConfirmCategory}
-          disabled={!selectedCategory}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:from-brand-700 hover:to-brand-600 active:scale-95 disabled:opacity-40"
-        >
-          대화 시작하기
-          <ArrowRight size={17} />
-        </button>
+        <div className={`mt-5 flex gap-2.5 ${showNotes ? 'hidden' : ''}`}>
+          <button
+            onClick={() => setShowNotes(true)}
+            className="flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 px-5 py-3.5 text-[13px] font-bold text-slate-600 transition-all hover:border-brand-400 hover:text-brand-600 active:scale-95 dark:border-slate-700 dark:text-slate-300"
+          >
+            <StickyNote size={16} />
+            읽기 노트
+            {getNotesForBook(selectedBook.title).length > 0 && (
+              <span className="rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] font-bold text-brand-600 dark:bg-brand-900/30">
+                {getNotesForBook(selectedBook.title).length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={handleConfirmCategory}
+            disabled={!selectedCategory}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:from-brand-700 hover:to-brand-600 active:scale-95 disabled:opacity-40"
+          >
+            대화 시작하기
+            <ArrowRight size={17} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -357,7 +397,34 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
               AI와 책 이야기 나누는 중
             </p>
           </div>
+          <button
+            onClick={() => setShowNotes(!showNotes)}
+            className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-bold transition-all ${
+              showNotes
+                ? 'bg-brand-500 text-white'
+                : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+            }`}
+          >
+            <StickyNote size={13} />
+            노트
+            {getNotesForBook(selectedBook.title).length > 0 && (
+              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${showNotes ? 'bg-white/20' : 'bg-brand-100 text-brand-600 dark:bg-brand-900/30'}`}>
+                {getNotesForBook(selectedBook.title).length}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Reading notes panel */}
+        {showNotes && (
+          <div className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50">
+            <ReadingNotePanel
+              notes={getNotesForBook(selectedBook.title)}
+              onAdd={(content, noteType) => onAddNote(selectedBook.title, selectedBook.authors.join(', ') || null, content, noteType)}
+              onDelete={onDeleteNote}
+            />
+          </div>
+        )}
 
         {/* Complete banner */}
         {canComplete && (

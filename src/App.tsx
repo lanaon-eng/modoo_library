@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFollows } from '@/hooks/useFollows';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useReadingNotes } from '@/hooks/useReadingNotes';
 import { supabase } from '@/lib/supabase';
 import type { Book, SearchBook } from '@/types';
 
@@ -41,6 +42,7 @@ function App() {
   const { followingIds, pendingFollowingIds, followerCount, followingCount, followingList, followerList, pendingRequests, toggleFollow, unfollow, acceptFollowRequest, rejectFollowRequest, fetchFollowers, fetchPendingRequests, refetch: refetchFollows } = useFollows(user);
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
+  const { notes: readingNotes, addNote: addReadingNote, deleteNote: deleteReadingNote, getNotesForBook } = useReadingNotes(user);
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -171,6 +173,10 @@ function App() {
             existingBookTitles={myBooks.map((b) => b.title)}
             wishlistTitles={new Set(wishlist.map((w) => w.bookTitle))}
             onToggleWishlist={handleToggleWishlist}
+            readingNotes={readingNotes}
+            onAddNote={addReadingNote}
+            onDeleteNote={deleteReadingNote}
+            getNotesForBook={getNotesForBook}
           />
         )}
         {tab === 'mine' && (
