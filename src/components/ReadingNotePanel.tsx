@@ -53,7 +53,7 @@ export function ReadingNotePanel({ notes, onAdd, onDelete }: Props) {
   };
 
   return (
-    <div className="flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+    <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pb-2 pt-1">
         <div className="flex items-center gap-1.5">
@@ -77,7 +77,7 @@ export function ReadingNotePanel({ notes, onAdd, onDelete }: Props) {
       {/* Add form */}
       {adding && (
         <div className="mx-4 mb-3 animate-slide-up rounded-2xl border border-slate-200 bg-white p-3 shadow-card dark:border-slate-700 dark:bg-slate-900">
-          <div className="mb-2 flex gap-1.5">
+          <div className="mb-2 flex flex-wrap gap-1.5">
             {NOTE_TYPES.map((t) => {
               const Icon = t.icon;
               return (
@@ -119,7 +119,7 @@ export function ReadingNotePanel({ notes, onAdd, onDelete }: Props) {
       )}
 
       {/* Notes list grouped by date */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 no-scrollbar">
+      <div className="px-4 pb-32">
         {notes.length === 0 && !adding ? (
           <div className="flex flex-col items-center justify-center gap-2 py-10 text-slate-300 dark:text-slate-600">
             <StickyNote size={32} strokeWidth={1.5} />
@@ -142,7 +142,7 @@ export function ReadingNotePanel({ notes, onAdd, onDelete }: Props) {
                       >
                         <div className="flex items-start gap-2">
                           <Icon size={14} className={`mt-0.5 shrink-0 ${meta.color}`} />
-                          <p className="flex-1 text-[12.5px] font-medium leading-relaxed text-slate-700 dark:text-slate-200">
+                          <p className="flex-1 break-words text-[12.5px] font-medium leading-relaxed text-slate-700 dark:text-slate-200">
                             {note.content}
                           </p>
                           <button
