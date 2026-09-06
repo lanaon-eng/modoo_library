@@ -25,9 +25,10 @@ export function useFollows(user: User | null) {
     const { data: counts } = await supabase.rpc('get_follow_counts', {
       target_user_id: user.id,
     });
-    if (counts) {
-      setFollowerCount(Number(counts.follower_count) || 0);
-      setFollowingCount(Number(counts.following_count) || 0);
+    const row = Array.isArray(counts) ? counts[0] : counts;
+    if (row) {
+      setFollowerCount(Number(row.follower_count) || 0);
+      setFollowingCount(Number(row.following_count) || 0);
     }
 
     if (ids.size > 0) {
