@@ -221,34 +221,34 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
   if (step === 'search') {
     return (
       <div className="px-4 py-4">
-        <div className="flex items-center gap-2 rounded-2xl border border-ink-200 bg-ink-50 px-3.5 py-2.5 transition-colors focus-within:border-brand-400 focus-within:bg-white dark:border-ink-700 dark:bg-ink-800 dark:focus-within:bg-ink-900">
-          <Search size={18} className="text-ink-400" />
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-900">
+          <Search size={18} className="text-slate-400" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
             placeholder="책 제목을 검색하세요"
-            className="w-full bg-transparent text-[14px] font-medium text-ink-900 outline-none placeholder:text-ink-400 dark:text-ink-100"
+            className="w-full bg-transparent text-[14px] font-medium text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
           />
         </div>
 
         <div className="mt-4">
           {loading && (
-            <div className="flex flex-col items-center justify-center gap-2 py-12 text-ink-400">
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400">
               <Loader2 size={24} className="animate-spin" />
               <p className="text-[13px] font-medium">검색 중...</p>
             </div>
           )}
           {!loading && !searched && (
-            <div className="flex flex-col items-center justify-center gap-3 py-16 text-ink-300 dark:text-ink-600">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-100 dark:bg-ink-800">
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-300 dark:text-slate-600">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
                 <BookOpen size={28} strokeWidth={1.5} />
               </div>
               <p className="text-[13px] font-medium">책을 검색하고 AI 북챗을 시작하세요</p>
             </div>
           )}
           {!loading && searched && results.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-2 py-12 text-ink-400">
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400">
               <BookOpen size={32} strokeWidth={1.5} />
               <p className="text-[13px] font-medium">검색 결과가 없어요</p>
             </div>
@@ -262,17 +262,17 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                   <li key={book.id} className="flex items-center gap-2">
                     <button
                       onClick={() => handleSelectBook(book)}
-                      className="flex flex-1 items-center gap-3 rounded-2xl border border-ink-200/70 bg-white p-2.5 text-left transition-all hover:border-brand-400 hover:shadow-md dark:border-ink-800/70 dark:bg-ink-900 dark:hover:border-brand-500"
+                      className="flex flex-1 items-center gap-3 rounded-2xl border border-slate-100/80 bg-white p-2.5 text-left transition-all hover:border-brand-400 hover:shadow-card dark:border-slate-800/70 dark:bg-slate-900 dark:hover:border-brand-500"
                     >
                       <BookThumb book={book} />
                       <div className="min-w-0 flex-1">
                         <h3 className="truncate text-[13.5px] font-bold">{book.title}</h3>
-                        <p className="mt-0.5 truncate text-[11.5px] text-ink-500 dark:text-ink-400">
+                        <p className="mt-0.5 truncate text-[11.5px] text-slate-500 dark:text-slate-400">
                           {book.authors.join(', ')} · {book.publisher}
                         </p>
                       </div>
                       {exists && (
-                        <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[10px] font-bold text-ink-400 dark:bg-ink-800">보유</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:bg-slate-800">보유</span>
                       )}
                     </button>
                     <button
@@ -281,7 +281,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-90 ${
                         inWishlist
                           ? 'border-brand-500 bg-brand-50 text-brand-500 dark:bg-brand-900/20'
-                          : 'border-ink-200 bg-white text-ink-400 hover:border-brand-400 hover:text-brand-500 dark:border-ink-700 dark:bg-ink-900'
+                          : 'border-slate-200 bg-white text-slate-400 hover:border-brand-400 hover:text-brand-500 dark:border-slate-700 dark:bg-slate-900'
                       }`}
                     >
                       {inWishlist ? <Check size={18} /> : <Bookmark size={18} />}
@@ -312,7 +312,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                 className={`flex flex-col items-center gap-1 rounded-2xl border py-3 transition-all ${
                   selectedCategory === cat.id
                     ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-900/20 dark:text-brand-400'
-                    : 'border-ink-200/70 bg-white text-ink-600 hover:border-ink-300 dark:border-ink-800/70 dark:bg-ink-900 dark:text-ink-300'
+                    : 'border-slate-200/70 bg-white text-slate-500 hover:border-brand-300 hover:text-brand-600 dark:border-slate-800/70 dark:bg-slate-900 dark:text-slate-300'
                 }`}
               >
                 <span className="text-xl">{cat.emoji}</span>
@@ -325,7 +325,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
         <button
           onClick={handleConfirmCategory}
           disabled={!selectedCategory}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-40"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:from-brand-700 hover:to-brand-600 active:scale-95 disabled:opacity-40"
         >
           대화 시작하기
           <ArrowRight size={17} />
@@ -339,21 +339,21 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     return (
       <div className="flex flex-col" style={{ height: 'calc(100vh - 128px)' }}>
         {/* Chat header */}
-        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3 dark:border-ink-800">
+        <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
           <button
             onClick={() => { setStep('category'); chatStartedRef.current = false; setMessages([]); }}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             <BookThumbSmall book={selectedBook} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[14px] font-bold">
               {selectedBook.title}
             </p>
-            <p className="truncate text-[11px] text-ink-400">
+            <p className="truncate text-[11px] text-slate-400">
               AI와 책 이야기 나누는 중
             </p>
           </div>
@@ -370,7 +370,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
         )}
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-ink-50 px-4 py-4 no-scrollbar dark:bg-ink-950">
+        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 px-4 py-4 no-scrollbar dark:bg-slate-950">
           {messages.map((msg) => (
             <div key={msg.id}>
               {msg.role === 'character' ? (
@@ -379,14 +379,14 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                     <Sparkles size={16} className="text-white" />
                   </div>
                   <div className="max-w-[78%]">
-                    <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm dark:bg-ink-800">
+                    <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed shadow-card dark:bg-slate-800">
                       {msg.text}
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex justify-end">
-                  <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm">
+                  <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-card">
                     {msg.text}
                   </div>
                 </div>
@@ -398,24 +398,24 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600">
                 <Sparkles size={16} className="text-white" />
               </div>
-              <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm dark:bg-ink-800">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:0ms] dark:bg-ink-500" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:150ms] dark:bg-ink-500" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:300ms] dark:bg-ink-500" />
+              <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-card dark:bg-slate-800">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-300 [animation-delay:0ms] dark:bg-slate-500" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-300 [animation-delay:150ms] dark:bg-slate-500" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-300 [animation-delay:300ms] dark:bg-slate-500" />
               </div>
             </div>
           )}
         </div>
 
         {/* Input */}
-        <div className="border-t border-ink-100 px-3 py-3 dark:border-ink-800">
+        <div className="border-t border-slate-100 px-3 py-3 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
               placeholder="메시지를 입력하세요..."
-              className="flex-1 rounded-full border border-ink-200 bg-ink-50 px-4 py-2.5 text-[13px] font-medium outline-none transition-colors focus:border-brand-400 focus:bg-white dark:border-ink-700 dark:bg-ink-800 dark:focus:bg-ink-900"
+              className="flex-1 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-medium outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-900"
             />
             <button
               onClick={() => sendMessage(input)}
@@ -436,7 +436,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       <div className="flex flex-col items-center justify-center px-6 py-20">
         <Loader2 size={32} className="animate-spin text-brand-500" />
         <p className="mt-4 text-[14px] font-bold">카드뉴스 생성 중...</p>
-        <p className="mt-1 text-[12px] text-ink-400">대화 내용을 바탕으로 카드를 만들고 있어요</p>
+        <p className="mt-1 text-[12px] text-slate-400">대화 내용을 바탕으로 카드를 만들고 있어요</p>
       </div>
     );
   }
@@ -451,7 +451,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     return (
       <div className="px-4 py-4">
         <div className="mb-4 flex items-center gap-2">
-          <button onClick={resetAll} className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800">
+          <button onClick={resetAll} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
           </button>
           <h2 className="text-[16px] font-bold">카드 미리보기</h2>
@@ -462,7 +462,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
           {allCards.map((card, i) => (
             <div
               key={i}
-              className="relative aspect-[3/4] w-64 shrink-0 overflow-hidden rounded-2xl bg-ink-900 shadow-lg"
+              className="relative aspect-[3/4] w-64 shrink-0 overflow-hidden rounded-2xl bg-slate-900 shadow-lg"
             >
               {i === 0 ? (
                 <>
@@ -473,10 +473,10 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                         urls={urls}
                         alt={selectedBook.title}
                         className="absolute inset-0 h-full w-full object-cover"
-                        fallback={<div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />}
+                        fallback={<div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />}
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />
                     );
                   })()}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
@@ -508,7 +508,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
         </div>
         <div className="mt-1 flex justify-center gap-1.5">
           {allCards.map((_, i) => (
-            <div key={i} className="h-1.5 w-1.5 rounded-full bg-ink-200 dark:bg-ink-700" />
+            <div key={i} className="h-1.5 w-1.5 rounded-full bg-slate-200 dark:bg-slate-700" />
           ))}
         </div>
 
@@ -521,9 +521,9 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
             placeholder="이 책에 대한 느낌을 짧게 적어보세요"
             rows={3}
             maxLength={200}
-            className="w-full resize-none rounded-2xl border border-ink-200 bg-ink-50 px-4 py-3 text-[13px] font-medium outline-none transition-colors focus:border-brand-400 focus:bg-white dark:border-ink-700 dark:bg-ink-800 dark:focus:bg-ink-900"
+            className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[13px] font-medium outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-900"
           />
-          <p className="mt-1 text-right text-[11px] text-ink-400">{userReview.length}/200</p>
+          <p className="mt-1 text-right text-[11px] text-slate-400">{userReview.length}/200</p>
         </div>
 
         {/* Save / Publish buttons */}
@@ -531,7 +531,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
           <button
             onClick={() => handleSave(false)}
             disabled={saving}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-ink-200 py-3.5 text-[14px] font-bold text-ink-700 transition-all hover:border-ink-300 hover:bg-ink-50 active:scale-95 dark:border-ink-700 dark:text-ink-200 dark:hover:bg-ink-800 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 py-3.5 text-[14px] font-bold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 disabled:opacity-50"
           >
             <BookMarked size={17} />
             나의 서재에 저장
@@ -539,7 +539,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
           <button
             onClick={() => handleSave(true)}
             disabled={saving}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:from-brand-700 hover:to-brand-600 active:scale-95 disabled:opacity-50"
           >
             <Globe size={17} />
             모두의 서재에 공유
@@ -555,27 +555,27 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
 function BookHeader({ book }: { book: SearchBook }) {
   const coverUrls = book.coverUrls?.length ? book.coverUrls : book.thumbnail ? [book.thumbnail] : [];
   return (
-    <div className="overflow-hidden rounded-2xl border border-ink-200/70 bg-white dark:border-ink-800/70 dark:bg-ink-900">
+    <div className="overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-card dark:border-slate-800/70 dark:bg-slate-900">
       <div className="flex items-center gap-3 p-3.5">
         {coverUrls.length > 0 ? (
           <CoverImage
             urls={coverUrls}
             alt={book.title}
             className="h-20 w-14 shrink-0 rounded-md object-cover"
-            fallback={<div className="flex h-20 w-14 items-center justify-center rounded-md bg-ink-100 dark:bg-ink-800"><BookOpen size={20} className="text-ink-300" /></div>}
+            fallback={<div className="flex h-20 w-14 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-800"><BookOpen size={20} className="text-slate-300" /></div>}
           />
         ) : (
-          <div className="flex h-20 w-14 items-center justify-center rounded-md bg-ink-100 dark:bg-ink-800">
-            <BookOpen size={20} className="text-ink-300" />
+          <div className="flex h-20 w-14 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-800">
+            <BookOpen size={20} className="text-slate-300" />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[15px] font-bold">{book.title}</h3>
-          <p className="mt-0.5 truncate text-[12px] text-ink-500 dark:text-ink-400">
+          <p className="mt-0.5 truncate text-[12px] text-slate-500 dark:text-slate-400">
             {book.authors.join(', ')}
           </p>
           {book.publisher && (
-            <p className="mt-0.5 truncate text-[11px] text-ink-400">{book.publisher}</p>
+            <p className="mt-0.5 truncate text-[11px] text-slate-400">{book.publisher}</p>
           )}
         </div>
       </div>
@@ -591,12 +591,12 @@ function BookThumb({ book }: { book: SearchBook }) {
         urls={coverUrls}
         alt={book.title}
         className="h-16 w-12 shrink-0 rounded-md object-cover"
-        fallback={<div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-ink-100 text-ink-300 dark:bg-ink-700 dark:text-ink-500"><BookOpen size={18} strokeWidth={1.5} /></div>}
+        fallback={<div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-500"><BookOpen size={18} strokeWidth={1.5} /></div>}
       />
     );
   }
   return (
-    <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-ink-100 text-ink-300 dark:bg-ink-700 dark:text-ink-500">
+    <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-300 dark:bg-slate-700 dark:text-slate-500">
       <BookOpen size={18} strokeWidth={1.5} />
     </div>
   );

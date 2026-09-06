@@ -46,7 +46,7 @@ export function BgmPlayer({
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="BGM 플레이어"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ink-900 text-white shadow-lg shadow-ink-900/25 transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-ink-900"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg shadow-slate-900/25 transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-slate-900"
       >
         <div
           className={`flex h-full w-full items-center justify-center rounded-full ${
@@ -69,9 +69,9 @@ export function BgmPlayer({
             className="fixed inset-0 z-40"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed bottom-24 right-5 z-50 w-72 animate-slide-up overflow-hidden rounded-2xl border border-ink-200/70 bg-white shadow-2xl dark:border-ink-800/70 dark:bg-ink-900">
+          <div className="fixed bottom-24 right-5 z-50 w-72 animate-slide-up overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-2xl dark:border-slate-800/70 dark:bg-slate-900">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3 dark:border-ink-800">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Music size={15} className="text-brand-500" />
                 <span className="text-[13px] font-bold">독서 BGM</span>
@@ -79,7 +79,7 @@ export function BgmPlayer({
               <button
                 onClick={() => setOpen(false)}
                 aria-label="닫기"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100"
               >
                 <X size={16} />
               </button>
@@ -95,21 +95,21 @@ export function BgmPlayer({
                   <p className="truncate text-[13px] font-bold">
                     {activeTrack.title}
                   </p>
-                  <p className="truncate text-[11px] text-ink-400">
+                  <p className="truncate text-[11px] text-slate-400">
                     {activeTrack.subtitle}
                   </p>
                 </div>
                 <button
                   onClick={onStop}
                   aria-label="정지"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-100 text-ink-700 transition-colors hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-ink-700"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   <Pause size={16} fill="currentColor" />
                 </button>
               </div>
             ) : (
               <div className="px-4 py-3">
-                <p className="text-[12px] text-ink-400">
+                <p className="text-[12px] text-slate-400">
                   테마를 선택하면 재생이 시작돼요
                 </p>
               </div>
@@ -126,20 +126,20 @@ export function BgmPlayer({
                     className={`flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left transition-colors ${
                       isActive
                         ? 'bg-brand-50 dark:bg-brand-900/20'
-                        : 'hover:bg-ink-50 dark:hover:bg-ink-800'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base transition-colors ${
                         isActive
                           ? 'bg-brand-500 text-white'
-                          : 'bg-ink-100 dark:bg-ink-800'
+                          : 'bg-slate-100 dark:bg-slate-800'
                       }`}
                     >
                       {isActive ? (
                         <Pause size={15} fill="currentColor" />
                       ) : (
-                        <Play size={15} fill="currentColor" className="ml-0.5 text-ink-500 dark:text-ink-400" />
+                        <Play size={15} fill="currentColor" className="ml-0.5 text-slate-500 dark:text-slate-400" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ export function BgmPlayer({
                       >
                         {track.title}
                       </p>
-                      <p className="truncate text-[11px] text-ink-400">
+                      <p className="truncate text-[11px] text-slate-400">
                         {track.subtitle}
                       </p>
                     </div>
@@ -160,11 +160,11 @@ export function BgmPlayer({
             </div>
 
             {/* Volume control */}
-            <div className="flex items-center gap-3 border-t border-ink-100 px-4 py-3 dark:border-ink-800">
+            <div className="flex items-center gap-3 border-t border-slate-100 px-4 py-3 dark:border-slate-800">
               <button
                 onClick={handleMute}
                 aria-label={muted ? '음소거 해제' : '음소거'}
-                className="text-ink-400 transition-colors hover:text-ink-900 dark:hover:text-ink-100"
+                className="text-slate-400 transition-colors hover:text-slate-900 dark:hover:text-slate-100"
               >
                 {muted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
               </button>
@@ -180,9 +180,9 @@ export function BgmPlayer({
                   setMuted(v === 0);
                 }}
                 aria-label="볼륨"
-                className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-ink-200 accent-brand-500 dark:bg-ink-700"
+                className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-brand-500 dark:bg-slate-700"
               />
-              <span className="w-8 text-right text-[11px] font-semibold text-ink-400">
+              <span className="w-8 text-right text-[11px] font-semibold text-slate-400">
                 {Math.round((muted ? 0 : volume) * 100)}%
               </span>
             </div>

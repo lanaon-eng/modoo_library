@@ -36,11 +36,11 @@ export function PublicFeed({ books, likedIds, onToggleLike, followingIds, onTogg
   if (books.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-ink-100 text-ink-300 dark:bg-ink-800 dark:text-ink-600">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
           <BookOpen size={36} strokeWidth={1.5} />
         </div>
         <h2 className="mt-5 text-[17px] font-bold">아직 공유된 기록이 없어요</h2>
-        <p className="mt-1.5 text-[13px] text-ink-400">AI 북챗에서 기록을 만들고 공유해보세요</p>
+        <p className="mt-1.5 text-[13px] text-slate-400">AI 북챗에서 기록을 만들고 공유해보세요</p>
       </div>
     );
   }
@@ -48,31 +48,31 @@ export function PublicFeed({ books, likedIds, onToggleLike, followingIds, onTogg
   return (
     <div className="space-y-5 px-4 py-4">
       {/* Scope toggle + search */}
-      <div className="sticky top-0 z-10 -mx-4 space-y-2.5 bg-ink-50/95 px-4 py-2 backdrop-blur-sm dark:bg-ink-950/95">
+      <div className="sticky top-0 z-10 -mx-4 space-y-2.5 bg-slate-50/95 px-4 py-2 backdrop-blur-sm dark:bg-slate-950/95">
         <div className="flex gap-1.5">
           <ScopeChip label="전체" active={feedScope === 'all'} onClick={() => setFeedScope('all')} />
           <ScopeChip label="팔로잉" active={feedScope === 'following'} onClick={() => setFeedScope('following')} />
         </div>
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="책 제목 또는 저자를 검색하세요"
-            className="w-full rounded-full border border-ink-200 bg-white py-2.5 pl-9 pr-9 text-[13px] font-medium text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-100 dark:placeholder:text-ink-600"
+            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-[13px] font-medium text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-600"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-ink-600 dark:hover:text-ink-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
             >
               <X size={16} />
             </button>
           )}
         </div>
         {query && (
-          <p className="px-1 text-[11px] font-medium text-ink-400">
+          <p className="px-1 text-[11px] font-medium text-slate-400">
             '{query}' 검색 결과 {filteredBooks.length}개
           </p>
         )}
@@ -80,19 +80,19 @@ export function PublicFeed({ books, likedIds, onToggleLike, followingIds, onTogg
 
       {feedScope === 'following' && filteredBooks.length === 0 && !query ? (
         <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-100 text-ink-300 dark:bg-ink-800 dark:text-ink-600">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
             <UserPlus size={28} strokeWidth={1.5} />
           </div>
           <h2 className="mt-4 text-[15px] font-bold">팔로잉 피드가 비어있어요</h2>
-          <p className="mt-1.5 text-[12px] text-ink-400">다른 사용자를 팔로우하면 여기에 기록이 나타나요</p>
+          <p className="mt-1.5 text-[12px] text-slate-400">다른 사용자를 팔로우하면 여기에 기록이 나타나요</p>
         </div>
       ) : filteredBooks.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-100 text-ink-300 dark:bg-ink-800 dark:text-ink-600">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
             <Search size={28} strokeWidth={1.5} />
           </div>
           <h2 className="mt-4 text-[15px] font-bold">검색 결과가 없어요</h2>
-          <p className="mt-1.5 text-[12px] text-ink-400">다른 책 제목이나 저자로 검색해보세요</p>
+          <p className="mt-1.5 text-[12px] text-slate-400">다른 책 제목이나 저자로 검색해보세요</p>
         </div>
       ) : (
         filteredBooks.map((book) => (
@@ -118,7 +118,7 @@ function ScopeChip({ label, active, onClick }: { label: string; active: boolean;
       className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
         active
           ? 'bg-brand-500 text-white shadow-sm'
-          : 'border border-ink-200 bg-white text-ink-600 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300'
+          : 'border border-slate-200 bg-white text-slate-500 hover:border-brand-300 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
       }`}
     >
       {label}
@@ -142,7 +142,7 @@ function FeedPostCard({
   isOwnPost: boolean;
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-ink-200/70 bg-white shadow-sm dark:border-ink-800/70 dark:bg-ink-900">
+    <article className="overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-card dark:border-slate-800/70 dark:bg-slate-900">
       {/* Author header */}
       <div className="flex items-center gap-2.5 px-4 pt-3.5">
         {book.authorAvatar ? (
@@ -154,7 +154,7 @@ function FeedPostCard({
         )}
         <div className="flex-1 leading-tight">
           <p className="text-[13px] font-semibold">{book.authorName || '독서러'}</p>
-          <p className="text-[11px] text-ink-400">
+          <p className="text-[11px] text-slate-400">
             {new Date(book.addedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -168,7 +168,7 @@ function FeedPostCard({
             onClick={onToggleFollow}
             className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all active:scale-90 ${
               isFollowing
-                ? 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400'
+                ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                 : 'bg-brand-500 text-white hover:bg-brand-600'
             }`}
           >
@@ -186,16 +186,16 @@ function FeedPostCard({
       {/* Footer */}
       <div className="px-4 py-3.5">
         <h3 className="text-[15px] font-bold leading-snug">{book.title}</h3>
-        <p className="mt-0.5 text-[12px] font-medium text-ink-500 dark:text-ink-400">
+        <p className="mt-0.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
           {book.authors.join(', ') || '저자 미상'}
         </p>
         {book.userReview && (
-          <p className="mt-2 text-[12.5px] leading-relaxed text-ink-600 dark:text-ink-300">{book.userReview}</p>
+          <p className="mt-2 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">{book.userReview}</p>
         )}
         <div className="mt-3 flex items-center gap-3">
           <button onClick={onToggleLike} className="flex items-center gap-1.5 transition-all active:scale-90">
-            <Heart size={18} className={isLiked ? 'fill-red-500 text-red-500' : 'text-ink-400'} />
-            <span className={`text-[12px] font-bold ${isLiked ? 'text-red-500' : 'text-ink-400'}`}>
+            <Heart size={18} className={isLiked ? 'fill-accent-500 text-accent-500' : 'text-slate-400'} />
+            <span className={`text-[12px] font-bold ${isLiked ? 'text-accent-500' : 'text-slate-400'}`}>
               {book.likesCount ?? 0}
             </span>
           </button>

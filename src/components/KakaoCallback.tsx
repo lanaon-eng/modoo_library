@@ -63,7 +63,7 @@ export function KakaoCallback() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-ink-50 dark:bg-ink-950">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
       {error ? (
         <div className="text-center">
           <p className="text-[15px] font-medium text-red-500">{error}</p>
@@ -77,7 +77,7 @@ export function KakaoCallback() {
       ) : (
         <div className="flex flex-col items-center gap-3">
           <Loader2 size={32} className="animate-spin text-brand-500" />
-          <p className="text-[14px] font-medium text-ink-500">카카오 로그인 중...</p>
+          <p className="text-[14px] font-medium text-slate-500">카카오 로그인 중...</p>
         </div>
       )}
     </div>

@@ -25,14 +25,14 @@ export function BookCoverDisplay({
 
   if (!current) {
     return (
-      <div className={`relative w-full overflow-hidden bg-ink-100 dark:bg-ink-800 ${containerClassName}`}>
+      <div className={`relative w-full overflow-hidden bg-slate-100 dark:bg-slate-800 ${containerClassName}`}>
         {fallback}
       </div>
     );
   }
 
   return (
-    <div className={`relative w-full overflow-hidden bg-ink-900 ${containerClassName}`}>
+    <div className={`relative w-full overflow-hidden bg-slate-900 ${containerClassName}`}>
       {/* Blurred background */}
       <img
         src={current}

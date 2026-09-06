@@ -28,17 +28,17 @@ export function BookCardCarousel({ book }: { book: Book }) {
   const card = cards[cardIdx];
 
   return (
-    <div className="relative h-56 overflow-hidden bg-ink-900">
+    <div className="relative h-56 overflow-hidden bg-slate-900">
       {card.type === 'cover' ? (
         <>
           {coverUrls.length > 0 ? (
             <BookCoverDisplay
               urls={coverUrls}
               alt={book.title}
-              fallback={<div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />}
+              fallback={<div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />}
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />
           )}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-5 pt-16">
             <h2 className="text-[20px] font-bold leading-snug text-white drop-shadow-lg">{card.title}</h2>
@@ -47,7 +47,7 @@ export function BookCardCarousel({ book }: { book: Book }) {
         </>
       ) : (
         <>
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-700 to-ink-900" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-700 to-slate-900" />
           <div className="absolute inset-0 flex flex-col justify-between p-5">
             <div className="flex items-center gap-2">
               <span className="text-3xl">{card.emoji}</span>

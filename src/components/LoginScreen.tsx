@@ -41,9 +41,9 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-ink-50 px-6 dark:bg-ink-950">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 dark:bg-slate-950">
       <div className="flex flex-col items-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-lg shadow-brand-500/30">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/30">
           <BookOpen size={32} strokeWidth={2.2} />
         </div>
         <h1 className="mt-5 text-[22px] font-bold tracking-tight">북로그</h1>

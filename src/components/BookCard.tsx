@@ -19,15 +19,15 @@ export function BookCard({ book, onRemove, onChat }: Props) {
       : [];
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-ink-200/70 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-ink-800/70 dark:bg-ink-900">
+    <article className="overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-card transition-shadow hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900">
       {/* Header: user-like row */}
       <div className="flex items-center gap-2.5 px-4 pt-3.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-[11px] font-bold text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-brand-600 to-brand-500 text-[11px] font-bold text-white">
           나
         </div>
         <div className="flex-1 leading-tight">
           <p className="text-[13px] font-semibold">나의 서재</p>
-          <p className="text-[11px] text-ink-400">
+          <p className="text-[11px] text-slate-400">
             {new Date(book.addedAt).toLocaleDateString('ko-KR', {
               year: 'numeric',
               month: 'long',
@@ -45,7 +45,7 @@ export function BookCard({ book, onRemove, onChat }: Props) {
             </button>
             <button
               onClick={() => setConfirming(false)}
-              className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-ink-500 transition-colors hover:bg-ink-100 dark:hover:bg-ink-800"
+              className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               취소
             </button>
@@ -54,7 +54,7 @@ export function BookCard({ book, onRemove, onChat }: Props) {
           <button
             onClick={() => setConfirming(true)}
             aria-label="책 삭제"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-red-500 dark:hover:bg-ink-800"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500 dark:hover:bg-slate-800"
           >
             <Trash2 size={16} />
           </button>
@@ -67,7 +67,7 @@ export function BookCard({ book, onRemove, onChat }: Props) {
           urls={coverUrls}
           alt={book.title}
           fallback={
-            <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-ink-300 dark:text-ink-600">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-300 dark:text-slate-600">
               <BookOpen size={36} strokeWidth={1.5} />
               <span className="text-[11px] font-medium">표지 없음</span>
             </div>
@@ -78,12 +78,12 @@ export function BookCard({ book, onRemove, onChat }: Props) {
       {/* Body */}
       <div className="px-4 py-3.5">
         <h3 className="text-[15px] font-bold leading-snug">{book.title}</h3>
-        <p className="mt-0.5 text-[12px] font-medium text-ink-500 dark:text-ink-400">
+        <p className="mt-0.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
           {book.authors.join(', ')} · {book.publisher}
         </p>
 
         {book.contents && (
-          <p className="mt-2 line-clamp-2 text-[12.5px] leading-relaxed text-ink-600 dark:text-ink-300">
+          <p className="mt-2 line-clamp-2 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
             {book.contents}
           </p>
         )}
@@ -104,10 +104,10 @@ export function BookCard({ book, onRemove, onChat }: Props) {
       </div>
 
       {/* Chat button */}
-      <div className="border-t border-ink-100 px-4 py-2.5 dark:border-ink-800">
+      <div className="border-t border-slate-100 px-4 py-2.5 dark:border-slate-800">
         <button
           onClick={() => onChat(book)}
-          className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-ink-50 py-2 text-[12.5px] font-bold text-ink-600 transition-all hover:bg-brand-50 hover:text-brand-600 dark:bg-ink-800/50 dark:text-ink-300 dark:hover:bg-brand-900/20 dark:hover:text-brand-400"
+          className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-50 py-2 text-[12.5px] font-bold text-slate-600 transition-all hover:bg-brand-50 hover:text-brand-600 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-brand-900/20 dark:hover:text-brand-400"
         >
           <MessageCircle size={15} />
           캐릭터와 대화하기

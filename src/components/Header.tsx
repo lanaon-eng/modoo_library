@@ -29,7 +29,7 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-200/60 bg-ink-50/80 backdrop-blur-xl dark:border-ink-800/60 dark:bg-ink-950/80">
+    <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-950/80">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <img src={LOGO_URL} alt="북톡" className="h-8 w-8 rounded-lg object-cover" />
@@ -40,7 +40,7 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
           <button
             onClick={onToggleTheme}
             aria-label="테마 전환"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
@@ -48,7 +48,7 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
           <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="flex items-center gap-1.5 rounded-full pl-0.5 pr-1.5 transition-colors hover:bg-ink-100 dark:hover:bg-ink-800"
+              className="flex items-center gap-1.5 rounded-full pl-0.5 pr-1.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               {avatarUrl ? (
                 <img
@@ -61,11 +61,11 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
                   {nickname.charAt(0)}
                 </div>
               )}
-              <ChevronDown size={14} className="text-ink-400" />
+              <ChevronDown size={14} className="text-slate-400" />
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-11 w-56 animate-scale-in rounded-2xl border border-ink-200/70 bg-white py-1.5 shadow-xl dark:border-ink-800/70 dark:bg-ink-900">
+              <div className="absolute right-0 top-11 w-56 animate-scale-in rounded-2xl border border-slate-100/80 bg-white py-1.5 shadow-card dark:border-slate-800/70 dark:bg-slate-900">
                 <div className="flex items-center gap-3 px-4 py-2.5">
                   {avatarUrl ? (
                     <img
@@ -74,22 +74,22 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-[14px] font-bold text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-brand-600 to-brand-500 text-[14px] font-bold text-white">
                       {nickname.charAt(0)}
                     </div>
                   )}
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-bold">{nickname}</p>
-                    <p className="text-[11px] text-ink-400">카카오 계정</p>
+                    <p className="text-[11px] text-slate-400">카카오 계정</p>
                   </div>
                 </div>
-                <div className="mx-3 my-1 border-t border-ink-100 dark:border-ink-800" />
+                <div className="mx-3 my-1 border-t border-slate-100 dark:border-slate-800" />
                 <button
                   onClick={() => {
                     setMenuOpen(false);
                     onEditNickname();
                   }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-ink-600 transition-colors hover:bg-ink-50 dark:text-ink-300 dark:hover:bg-ink-800"
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <Pencil size={16} />
                   닉네임 변경
@@ -99,7 +99,7 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
                     setMenuOpen(false);
                     onSignOut();
                   }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-ink-600 transition-colors hover:bg-ink-50 dark:text-ink-300 dark:hover:bg-ink-800"
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <LogOut size={16} />
                   로그아웃

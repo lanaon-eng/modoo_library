@@ -67,32 +67,32 @@ export function MyLibrary({
   return (
     <div className="px-4 py-4">
       {/* Profile card */}
-      <div className="mb-5 rounded-2xl border border-ink-200/70 bg-white p-4 shadow-sm dark:border-ink-800/70 dark:bg-ink-900">
+      <div className="mb-5 rounded-2xl border border-slate-100/80 bg-white p-4 shadow-card dark:border-slate-800/70 dark:bg-slate-900">
         <div className="flex items-center gap-3">
           {avatarUrl ? (
             <img src={avatarUrl} alt={nickname} className="h-14 w-14 rounded-full object-cover" />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-[18px] font-bold text-white">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-brand-600 to-brand-500 text-[18px] font-bold text-white">
               {nickname.charAt(0)}
             </div>
           )}
           <div className="flex-1">
             <h2 className="text-[16px] font-bold">{nickname}</h2>
-            <p className="text-[11px] text-ink-400">나의 독서 기록</p>
+            <p className="text-[11px] text-slate-400">나의 독서 기록</p>
           </div>
           <div className="text-right">
             <p className="text-[20px] font-bold leading-none">{books.length}</p>
-            <p className="text-[10px] text-ink-400">권</p>
+            <p className="text-[10px] text-slate-400">권</p>
           </div>
         </div>
-        <div className="mt-3 flex gap-6 border-t border-ink-100 pt-3 dark:border-ink-800">
+        <div className="mt-3 flex gap-6 border-t border-slate-100 pt-3 dark:border-slate-800">
           <div>
             <span className="text-[15px] font-bold">{followingCount}</span>
-            <span className="ml-1 text-[11px] text-ink-400">팔로잉</span>
+            <span className="ml-1 text-[11px] text-slate-400">팔로잉</span>
           </div>
           <div>
             <span className="text-[15px] font-bold">{followerCount}</span>
-            <span className="ml-1 text-[11px] text-ink-400">팔로워</span>
+            <span className="ml-1 text-[11px] text-slate-400">팔로워</span>
           </div>
         </div>
       </div>
@@ -102,18 +102,18 @@ export function MyLibrary({
         <div className="mb-5">
           <button
             onClick={() => setWishlistOpen(!wishlistOpen)}
-            className="flex w-full items-center justify-between rounded-xl bg-ink-100 px-4 py-3 dark:bg-ink-800/60"
+            className="flex w-full items-center justify-between rounded-xl bg-slate-100 px-4 py-3 dark:bg-slate-800/60"
           >
             <div className="flex items-center gap-2">
-              <Bookmark size={16} className="text-ink-500 dark:text-ink-300" />
-              <span className="text-[13px] font-bold text-ink-600 dark:text-ink-300">나중에 읽을 책</span>
-              <span className="rounded-full bg-ink-200 px-1.5 py-0.5 text-[10px] font-bold text-ink-500 dark:bg-ink-700 dark:text-ink-300">
+              <Bookmark size={16} className="text-slate-500 dark:text-slate-300" />
+              <span className="text-[13px] font-bold text-slate-600 dark:text-slate-300">나중에 읽을 책</span>
+              <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-300">
                 {wishlist.length}
               </span>
             </div>
             <ChevronDown
               size={16}
-              className={`text-ink-400 transition-transform ${wishlistOpen ? 'rotate-180' : ''}`}
+              className={`text-slate-400 transition-transform ${wishlistOpen ? 'rotate-180' : ''}`}
             />
           </button>
           {wishlistOpen && (
@@ -123,26 +123,26 @@ export function MyLibrary({
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 rounded-xl border border-ink-200/70 bg-white p-3 dark:border-ink-800/70 dark:bg-ink-900"
+                    className="flex items-center gap-3 rounded-xl border border-slate-100/80 bg-white p-3 shadow-card dark:border-slate-800/70 dark:bg-slate-900"
                   >
                     {urls.length > 0 ? (
                       <img src={urls[0]} alt={item.bookTitle} className="h-14 w-10 rounded object-cover" />
                     ) : (
-                      <div className="flex h-14 w-10 items-center justify-center rounded bg-ink-200 dark:bg-ink-700">
-                        <BookOpen size={16} className="text-ink-400" />
+                      <div className="flex h-14 w-10 items-center justify-center rounded bg-slate-200 dark:bg-slate-700">
+                        <BookOpen size={16} className="text-slate-400" />
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-bold">{item.bookTitle}</p>
-                      <p className="truncate text-[11px] text-ink-400">{item.bookAuthor}</p>
+                      <p className="truncate text-[11px] text-slate-400">{item.bookAuthor}</p>
                       {item.bookContents && (
-                        <p className="mt-1 line-clamp-2 text-[11px] text-ink-500 dark:text-ink-400">{item.bookContents}</p>
+                        <p className="mt-1 line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400">{item.bookContents}</p>
                       )}
                     </div>
                     <button
                       onClick={() => onRemoveFromWishlist(item.id)}
                       aria-label="보관함에서 삭제"
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-red-500 dark:hover:bg-ink-800"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500 dark:hover:bg-slate-800"
                     >
                       <X size={16} />
                     </button>
@@ -165,7 +165,7 @@ export function MyLibrary({
               <Gift size={16} className="text-brand-500" />
               <span className="text-[13px] font-bold text-brand-600 dark:text-brand-400">받은 추천</span>
               {unreadRecCount > 0 && (
-                <span className="rounded-full bg-brand-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                <span className="rounded-full bg-accent-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                   {unreadRecCount}
                 </span>
               )}
@@ -190,28 +190,28 @@ export function MyLibrary({
                   key={rec.id}
                   className={`flex items-center gap-3 rounded-xl border p-3 ${
                     rec.isRead
-                      ? 'border-ink-200/70 bg-white dark:border-ink-800/70 dark:bg-ink-900'
+                      ? 'border-slate-100/80 bg-white dark:border-slate-800/70 dark:bg-slate-900'
                       : 'border-brand-300 bg-brand-50/50 dark:border-brand-700 dark:bg-brand-900/10'
                   }`}
                 >
                   {rec.coverUrl.length > 0 ? (
                     <img src={rec.coverUrl || rec.coverUrls[0]} alt={rec.bookTitle} className="h-14 w-10 rounded object-cover" />
                   ) : (
-                    <div className="flex h-14 w-10 items-center justify-center rounded bg-ink-200 dark:bg-ink-700">
-                      <BookOpen size={16} className="text-ink-400" />
+                    <div className="flex h-14 w-10 items-center justify-center rounded bg-slate-200 dark:bg-slate-700">
+                      <BookOpen size={16} className="text-slate-400" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-bold">{rec.bookTitle}</p>
-                    <p className="truncate text-[11px] text-ink-400">{rec.bookAuthor}</p>
-                    <p className="mt-0.5 text-[10px] text-ink-500 dark:text-ink-400">
+                    <p className="truncate text-[11px] text-slate-400">{rec.bookAuthor}</p>
+                    <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
                       {rec.senderName}님이 추천
                     </p>
                     {rec.message && (
-                      <p className="mt-1 line-clamp-2 text-[11px] text-ink-500 dark:text-ink-400">"{rec.message}"</p>
+                      <p className="mt-1 line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400">"{rec.message}"</p>
                     )}
                   </div>
-                  {!rec.isRead && <div className="h-2 w-2 shrink-0 rounded-full bg-brand-500" />}
+                  {!rec.isRead && <div className="h-2 w-2 shrink-0 rounded-full bg-accent-500" />}
                 </div>
               ))}
             </div>
@@ -225,17 +225,17 @@ export function MyLibrary({
           <div className="relative">
             <button
               onClick={() => { setYearOpen(!yearOpen); setMonthOpen(false); }}
-              className="flex items-center gap-1 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-brand-400 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300"
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-500 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
             >
               {selectedYear === 'all' ? '연도' : `${selectedYear}년`}
               <ChevronDown size={13} />
             </button>
             {yearOpen && (
-              <div className="absolute left-0 top-full z-10 mt-1 w-24 overflow-hidden rounded-xl border border-ink-200 bg-white py-1 shadow-lg dark:border-ink-700 dark:bg-ink-900">
+              <div className="absolute left-0 top-full z-10 mt-1 w-24 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-card dark:border-slate-700 dark:bg-slate-900">
                 <button
                   onClick={() => { setSelectedYear('all'); setYearOpen(false); }}
-                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-ink-50 dark:hover:bg-ink-800 ${
-                    selectedYear === 'all' ? 'text-brand-500' : 'text-ink-600 dark:text-ink-300'
+                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                    selectedYear === 'all' ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
                   }`}
                 >
                   전체
@@ -244,8 +244,8 @@ export function MyLibrary({
                   <button
                     key={y}
                     onClick={() => { setSelectedYear(y); setYearOpen(false); }}
-                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-ink-50 dark:hover:bg-ink-800 ${
-                      selectedYear === y ? 'text-brand-500' : 'text-ink-600 dark:text-ink-300'
+                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                      selectedYear === y ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
                     }`}
                   >
                     {y}년
@@ -258,17 +258,17 @@ export function MyLibrary({
           <div className="relative">
             <button
               onClick={() => setMonthOpen(!monthOpen)}
-              className="flex items-center gap-1 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-600 transition-colors hover:border-brand-400 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300"
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-500 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
             >
               {selectedMonth === 'all' ? '월' : `${selectedMonth}월`}
               <ChevronDown size={13} />
             </button>
             {monthOpen && (
-              <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-20 overflow-y-auto rounded-xl border border-ink-200 bg-white py-1 shadow-lg dark:border-ink-700 dark:bg-ink-900 no-scrollbar">
+              <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-20 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-card dark:border-slate-700 dark:bg-slate-900 no-scrollbar">
                 <button
                   onClick={() => { setSelectedMonth('all'); setMonthOpen(false); }}
-                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-ink-50 dark:hover:bg-ink-800 ${
-                    selectedMonth === 'all' ? 'text-brand-500' : 'text-ink-600 dark:text-ink-300'
+                  className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                    selectedMonth === 'all' ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
                   }`}
                 >
                   전체
@@ -277,8 +277,8 @@ export function MyLibrary({
                   <button
                     key={m}
                     onClick={() => { setSelectedMonth(m); setMonthOpen(false); }}
-                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-ink-50 dark:hover:bg-ink-800 ${
-                      selectedMonth === m ? 'text-brand-500' : 'text-ink-600 dark:text-ink-300'
+                    className={`block w-full px-3 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                      selectedMonth === m ? 'text-brand-500' : 'text-slate-500 dark:text-slate-300'
                     }`}
                   >
                     {m}월
@@ -299,27 +299,27 @@ export function MyLibrary({
 
       {/* Book gallery */}
       <div className="mb-3 flex items-center gap-2">
-        <BookOpen size={15} className="text-ink-400" />
+        <BookOpen size={15} className="text-slate-400" />
         <h2 className="text-[14px] font-bold">내가 읽은 책 {filteredBooks.length}권</h2>
       </div>
 
       {filteredBooks.length === 0 ? (
         books.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-ink-100 text-ink-300 dark:bg-ink-800 dark:text-ink-600">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
               <BookOpen size={36} strokeWidth={1.5} />
             </div>
             <h2 className="mt-5 text-[17px] font-bold">서재가 비어있어요</h2>
             <button
               onClick={onAdd}
-              className="mt-6 flex items-center gap-1.5 rounded-full bg-brand-500 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm shadow-brand-500/30 transition-all hover:scale-[1.03] active:scale-95"
+              className="mt-6 flex items-center gap-1.5 rounded-full bg-gradient-to-tr from-brand-600 to-brand-500 px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-brand-500/30 transition-all hover:scale-[1.03] active:scale-95"
             >
               AI 북챗 시작하기
             </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ink-200 px-6 py-10 text-center dark:border-ink-800">
-            <p className="text-[12.5px] font-semibold text-ink-400">필터 조건에 맞는 책이 없어요</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 px-6 py-10 text-center dark:border-slate-800">
+            <p className="text-[12.5px] font-semibold text-slate-400">필터 조건에 맞는 책이 없어요</p>
           </div>
         )
       ) : (
@@ -331,17 +331,17 @@ export function MyLibrary({
               <button
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-ink-900 shadow-sm transition-all hover:scale-[1.03] hover:shadow-lg active:scale-95"
+                className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-slate-900 shadow-card transition-all hover:scale-[1.03] hover:shadow-card-hover active:scale-95"
               >
                 {coverUrls.length > 0 ? (
                   <CoverImage
                     urls={coverUrls}
                     alt={book.title}
                     className="absolute inset-0 h-full w-full object-cover"
-                    fallback={<div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />}
+                    fallback={<div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />}
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col justify-between p-3">
@@ -383,7 +383,7 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
       className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-all ${
         active
           ? 'bg-brand-500 text-white shadow-sm'
-          : 'border border-ink-200 bg-white text-ink-600 hover:border-ink-300 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300'
+          : 'border border-slate-200 bg-white text-slate-500 hover:border-brand-300 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
       }`}
     >
       {label}

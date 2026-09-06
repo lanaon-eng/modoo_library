@@ -9,11 +9,11 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-ink-50 text-ink-900 antialiased;
+    @apply bg-slate-50 text-slate-900 antialiased;
     font-feature-settings: 'ss01', 'cv01';
   }
   .dark body {
-    @apply bg-ink-950 text-ink-100;
+    @apply bg-slate-950 text-slate-100;
   }
 }
 
