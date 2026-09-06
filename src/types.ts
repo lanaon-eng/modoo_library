@@ -29,6 +29,7 @@ export type Book = {
   chatCards?: ChatCard[];
   authorName?: string;
   authorAvatar?: string;
+  authorId?: string;
 };
 
 export type SearchBook = {
@@ -52,5 +53,26 @@ export type ReadingCard = {
   characterName: string;
   characterEmoji: string;
   insight: string;
+  createdAt: number;
+};
+
+export type FollowUser = {
+  id: string;
+  nickname: string;
+  avatarUrl: string | null;
+};
+
+export type Recommendation = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string | null;
+  postId: string;
+  bookTitle: string;
+  bookAuthor: string;
+  coverUrl: string | null;
+  coverUrls: string[];
+  message: string | null;
+  isRead: boolean;
   createdAt: number;
 };

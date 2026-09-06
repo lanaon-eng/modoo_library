@@ -8,12 +8,15 @@ import { KakaoCallback } from '@/components/KakaoCallback';
 import { BottomNav, type FeedTab } from '@/components/BottomNav';
 import { AIBookChat, type SaveData } from '@/components/AIBookChat';
 import { NicknameModal } from '@/components/NicknameModal';
+import { RecommendModal } from '@/components/RecommendModal';
 import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
 import { useCards } from '@/hooks/useCards';
 import { useAuth } from '@/hooks/useAuth';
+import { useFollows } from '@/hooks/useFollows';
+import { useRecommendations } from '@/hooks/useRecommendations';
 import { supabase } from '@/lib/supabase';
-import type { ReadingCard } from '@/types';
+import type { ReadingCard, Book } from '@/types';
 
 const TAB_TITLES: Record<FeedTab, string> = {
   all: '모두의 서재',
@@ -28,10 +31,13 @@ function App() {
   const [viewCard, setViewCard] = useState<ReadingCard | null>(null);
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [recommendBook, setRecommendBook] = useState<Book | null>(null);
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
   const { cards, addCard } = useCards();
+  const { followingIds, followerCount, followingCount, followingList, toggleFollow, refetch: refetchFollows } = useFollows(user);
+  const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -82,7 +88,6 @@ function App() {
     }).select('id').single();
 
     if (!error && insertData) {
-      const character = data.chatCards[0];
       const card: ReadingCard = {
         id: `card-${insertData.id}-${Date.now()}`,
         bookId: insertData.id as string,
@@ -111,15 +116,22 @@ function App() {
     await supabase.auth.signOut();
   };
 
-  const handleOpenNicknameModal = () => {
-    setIsFirstLogin(needsNicknameSetup);
-    setNicknameModalOpen(true);
-  };
-
-  const handleNicknameSaved = (newNickname: string) => {
+  const handleNicknameSaved = () => {
     setNicknameModalOpen(false);
     setIsFirstLogin(false);
     window.location.reload();
+  };
+
+  const handleSendRecommendation = async (receiverId: string, postId: string, message?: string) => {
+    const result = await sendRecommendation(receiverId, postId, message);
+    if (!result.error) {
+      refetchRecs();
+    }
+    return result;
+  };
+
+  const handleMarkAllRecsRead = () => {
+    markAllAsRead();
   };
 
   return (
@@ -142,6 +154,12 @@ function App() {
             books={allBooks}
             likedIds={likedIdsAll}
             onToggleLike={toggleLikeAll}
+            followingIds={followingIds}
+            onToggleFollow={(userId) => {
+              toggleFollow(userId);
+              refetchFollows();
+            }}
+            currentUserId={user.id}
           />
         )}
         {tab === 'chat' && (
@@ -158,6 +176,14 @@ function App() {
             onAdd={() => setTab('chat')}
             onTogglePublish={handleTogglePublish}
             onCardClick={(card) => setViewCard(card)}
+            nickname={nickname}
+            avatarUrl={avatarUrl}
+            followerCount={followerCount}
+            followingCount={followingCount}
+            recommendations={recommendations}
+            unreadRecCount={unreadRecCount}
+            onMarkAllRecsRead={handleMarkAllRecsRead}
+            onRecommend={(book) => setRecommendBook(book)}
           />
         )}
       </main>
@@ -177,6 +203,14 @@ function App() {
         isFirstLogin={isFirstLogin || needsNicknameSetup}
         onClose={() => setNicknameModalOpen(false)}
         onSaved={handleNicknameSaved}
+      />
+
+      <RecommendModal
+        open={!!recommendBook}
+        book={recommendBook}
+        followingList={followingList}
+        onSend={handleSendRecommendation}
+        onClose={() => setRecommendBook(null)}
       />
     </div>
   );

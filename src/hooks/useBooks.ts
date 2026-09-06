@@ -42,6 +42,7 @@ function mapRow(row: PostRow): Book {
     isPublished: row.is_published ?? false,
     likesCount: row.likes_count ?? 0,
     chatCards: row.chat_cards ?? undefined,
+    authorId: row.user_id,
   };
 }
 
