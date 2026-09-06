@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
-import { BookOpen, Trash2, Globe, Lock, ChevronDown, Send, Gift, Bookmark, X } from 'lucide-react';
+import { BookOpen, ChevronDown, Send, Gift, Bookmark, X } from 'lucide-react';
 import type { Book, Category, ReadingCard, Recommendation, WishlistBook } from '@/types';
-import { BookCardCarousel } from '@/components/BookCardCarousel';
 import { CoverImage } from '@/components/CoverImage';
 
 type Props = {
@@ -10,6 +9,7 @@ type Props = {
   onRemove: (id: string) => void;
   onAdd: () => void;
   onTogglePublish: (id: string, isPublished: boolean) => void;
+  onBookClick: (book: Book) => void;
   onCardClick: (card: ReadingCard) => void;
   nickname: string;
   avatarUrl: string | null;
@@ -31,6 +31,7 @@ export function MyLibrary({
   onRemove,
   onAdd,
   onTogglePublish,
+  onBookClick,
   onCardClick,
   nickname,
   avatarUrl,
@@ -48,7 +49,6 @@ export function MyLibrary({
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const [yearOpen, setYearOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
-  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [recSectionOpen, setRecSectionOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
 
@@ -345,13 +345,12 @@ export function MyLibrary({
         </div>
       </div>
 
-      {/* Book count */}
+      {/* Book gallery */}
       <div className="mb-3 flex items-center gap-2">
         <BookOpen size={15} className="text-ink-400" />
-        <h2 className="text-[14px] font-bold">{filteredBooks.length}권</h2>
+        <h2 className="text-[14px] font-bold">내가 읽은 책 {filteredBooks.length}권</h2>
       </div>
 
-      {/* Book list */}
       {filteredBooks.length === 0 ? (
         books.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
@@ -372,106 +371,51 @@ export function MyLibrary({
           </div>
         )
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {filteredBooks.map((book) => {
+            const coverUrls = book.coverUrls?.length ? book.coverUrls : book.thumbnail ? [book.thumbnail] : [];
+            const cardCount = (book.chatCards?.length ?? 0) + 1;
             return (
-              <article
+              <button
                 key={book.id}
-                className="overflow-hidden rounded-2xl border border-ink-200/70 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-ink-800/70 dark:bg-ink-900"
+                onClick={() => onBookClick(book)}
+                className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-ink-900 shadow-sm transition-all hover:scale-[1.03] hover:shadow-lg active:scale-95"
               >
-                <div className="flex items-center gap-2.5 px-4 pt-3.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-[11px] font-bold text-white">
-                    나
-                  </div>
-                  <div className="flex-1 leading-tight">
-                    <p className="text-[13px] font-semibold">{book.title}</p>
-                    <p className="text-[11px] text-ink-400">
-                      {new Date(book.addedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                  </div>
-                  {book.category && (
-                    <span className="rounded-full bg-brand-50 px-2.5 py-1 text-[10px] font-bold text-brand-600 dark:bg-brand-900/20 dark:text-brand-400">
-                      {book.category}
-                    </span>
-                  )}
-                  {confirmingId === book.id ? (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => { onRemove(book.id); setConfirmingId(null); }}
-                        className="rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-red-600"
-                      >
-                        삭제
-                      </button>
-                      <button
-                        onClick={() => setConfirmingId(null)}
-                        className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-ink-500 transition-colors hover:bg-ink-100 dark:hover:bg-ink-800"
-                      >
-                        취소
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => onRecommend(book)}
-                        aria-label="추천"
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-brand-50 hover:text-brand-500 dark:hover:bg-brand-900/20"
-                      >
-                        <Send size={15} />
-                      </button>
-                      <button
-                        onClick={() => setConfirmingId(book.id)}
-                        aria-label="삭제"
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-red-500 dark:hover:bg-ink-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3">
-                  <BookCardCarousel book={book} />
-                </div>
-
-                <div className="px-4 py-3.5">
-                  <h3 className="text-[15px] font-bold leading-snug">{book.title}</h3>
-                  <p className="mt-0.5 text-[12px] font-medium text-ink-500 dark:text-ink-400">
-                    {book.authors.join(', ')}
-                  </p>
-                  {book.userReview && (
-                    <p className="mt-2 text-[12.5px] leading-relaxed text-ink-600 dark:text-ink-300">{book.userReview}</p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between border-t border-ink-100 px-4 py-3 dark:border-ink-800">
-                  <div className="flex items-center gap-1.5">
-                    {book.isPublished ? (
-                      <>
-                        <Globe size={14} className="text-brand-500" />
-                        <span className="text-[12px] font-semibold text-brand-500">모두의 서재에 공유됨</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock size={14} className="text-ink-400" />
-                        <span className="text-[12px] font-semibold text-ink-400">비공개</span>
-                      </>
+                {coverUrls.length > 0 ? (
+                  <CoverImage
+                    urls={coverUrls}
+                    alt={book.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    fallback={<div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                <div className="absolute inset-0 flex flex-col justify-between p-3">
+                  <div className="flex items-center justify-between">
+                    {book.category && (
+                      <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
+                        {book.category}
+                      </span>
+                    )}
+                    {book.isPublished && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-brand-500/80 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
+                        공유됨
+                      </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => onTogglePublish(book.id, !book.isPublished)}
-                    className={`relative h-6 w-11 rounded-full transition-colors ${
-                      book.isPublished ? 'bg-brand-500' : 'bg-ink-200 dark:bg-ink-700'
-                    }`}
-                    aria-label="공개 토글"
-                  >
-                    <span
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                        book.isPublished ? 'translate-x-5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </button>
+                  <div>
+                    <p className="line-clamp-2 text-[12px] font-bold leading-tight text-white drop-shadow-lg">{book.title}</p>
+                    <p className="mt-0.5 truncate text-[10px] text-white/60">{book.authors.join(', ')}</p>
+                    <div className="mt-1.5 flex items-center gap-1">
+                      <span className="rounded bg-white/15 px-1.5 py-0.5 text-[9px] font-bold text-white/80 backdrop-blur-md">
+                        {cardCount}장
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </article>
+              </button>
             );
           })}
         </div>

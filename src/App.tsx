@@ -3,6 +3,7 @@ import { Header } from '@/components/Header';
 import { PublicFeed } from '@/components/PublicFeed';
 import { MyLibrary } from '@/components/MyLibrary';
 import { CardViewerModal } from '@/components/CardViewerModal';
+import { BookFeedModal } from '@/components/BookFeedModal';
 import { LoginScreen } from '@/components/LoginScreen';
 import { KakaoCallback } from '@/components/KakaoCallback';
 import { BottomNav, type FeedTab } from '@/components/BottomNav';
@@ -30,6 +31,7 @@ function App() {
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<FeedTab>('all');
   const [viewCard, setViewCard] = useState<ReadingCard | null>(null);
+  const [viewBook, setViewBook] = useState<Book | null>(null);
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [recommendBook, setRecommendBook] = useState<Book | null>(null);
@@ -188,6 +190,7 @@ function App() {
             onRemove={removeBook}
             onAdd={() => setTab('chat')}
             onTogglePublish={handleTogglePublish}
+            onBookClick={(book) => setViewBook(book)}
             onCardClick={(card) => setViewCard(card)}
             nickname={nickname}
             avatarUrl={avatarUrl}
@@ -210,6 +213,15 @@ function App() {
         open={!!viewCard}
         onClose={() => setViewCard(null)}
         nickname={nickname}
+      />
+
+      <BookFeedModal
+        book={viewBook}
+        open={!!viewBook}
+        onClose={() => setViewBook(null)}
+        onTogglePublish={handleTogglePublish}
+        onRecommend={(book) => { setViewBook(null); setRecommendBook(book); }}
+        onRemove={removeBook}
       />
 
       <NicknameModal
