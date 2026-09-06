@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, UserCheck, UserPlus, Check, Clock } from 'lucide-react';
+import { X, UserCheck, UserPlus, Check, Clock, UserMinus } from 'lucide-react';
 import type { FollowUser, FollowerUser } from '@/types';
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
   onClose: () => void;
   onAccept: (followerId: string) => void;
   onReject: (followerId: string) => void;
+  onUnfollow: (userId: string) => void;
 };
 
 export function FollowListModal({
@@ -20,6 +21,7 @@ export function FollowListModal({
   onClose,
   onAccept,
   onReject,
+  onUnfollow,
 }: Props) {
   const [tab, setTab] = useState<'following' | 'followers'>(initialTab);
 
@@ -87,7 +89,20 @@ export function FollowListModal({
               ) : (
                 <ul className="space-y-2">
                   {followingList.map((f) => (
-                    <UserRow key={f.id} user={f} />
+                    <li
+                      key={f.id}
+                      className="flex items-center gap-3 rounded-2xl border border-slate-100/80 bg-white p-2.5 shadow-card dark:border-slate-800/70 dark:bg-slate-800/50"
+                    >
+                      <Avatar user={f} />
+                      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{f.nickname || '사용자'}</span>
+                      <button
+                        onClick={() => onUnfollow(f.id)}
+                        className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-500 transition-all hover:bg-red-50 hover:text-red-500 active:scale-95 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-red-900/20"
+                      >
+                        <UserMinus size={12} />
+                        팔로우 취소
+                      </button>
+                    </li>
                   ))}
                 </ul>
               )}

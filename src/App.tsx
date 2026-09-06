@@ -38,7 +38,7 @@ function App() {
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
-  const { followingIds, pendingFollowingIds, followerCount, followingCount, followingList, followerList, pendingRequests, toggleFollow, acceptFollowRequest, rejectFollowRequest, fetchFollowers, fetchPendingRequests, refetch: refetchFollows } = useFollows(user);
+  const { followingIds, pendingFollowingIds, followerCount, followingCount, followingList, followerList, pendingRequests, toggleFollow, unfollow, acceptFollowRequest, rejectFollowRequest, fetchFollowers, fetchPendingRequests, refetch: refetchFollows } = useFollows(user);
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
 
@@ -240,6 +240,10 @@ function App() {
         }}
         onReject={(followerId) => {
           rejectFollowRequest(followerId);
+          refetchFollows();
+        }}
+        onUnfollow={(userId) => {
+          unfollow(userId);
           refetchFollows();
         }}
       />
