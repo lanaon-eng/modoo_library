@@ -7,6 +7,7 @@ import { LoginScreen } from '@/components/LoginScreen';
 import { KakaoCallback } from '@/components/KakaoCallback';
 import { BottomNav, type FeedTab } from '@/components/BottomNav';
 import { AIBookChat, type SaveData } from '@/components/AIBookChat';
+import { ReadingNotePage } from '@/components/ReadingNotePage';
 import { NicknameModal } from '@/components/NicknameModal';
 import { RecommendModal } from '@/components/RecommendModal';
 import { FollowListModal } from '@/components/FollowListModal';
@@ -17,8 +18,9 @@ import { useFollows } from '@/hooks/useFollows';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useReadingNotes } from '@/hooks/useReadingNotes';
+import { useCurrentlyReading } from '@/hooks/useCurrentlyReading';
 import { supabase } from '@/lib/supabase';
-import type { Book, SearchBook } from '@/types';
+import type { Book, SearchBook, CurrentlyReading } from '@/types';
 
 const TAB_TITLES: Record<FeedTab, string> = {
   all: '모두의 서재',
@@ -36,6 +38,8 @@ function App() {
   const [recommendBook, setRecommendBook] = useState<Book | null>(null);
   const [followListTab, setFollowListTab] = useState<'following' | 'followers'>('following');
   const [followListOpen, setFollowListOpen] = useState(false);
+  const [readingBook, setReadingBook] = useState<CurrentlyReading | null>(null);
+  const [presetChatBook, setPresetChatBook] = useState<SearchBook | null>(null);
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
@@ -43,6 +47,7 @@ function App() {
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
   const { notes: readingNotes, addNote: addReadingNote, deleteNote: deleteReadingNote, getNotesForBook } = useReadingNotes(user);
+  const { books: currentlyReading, addBook: addCurrentlyReading, removeBook: removeCurrentlyReading, removeByTitle: removeCurrentlyReadingByTitle, isReading, refetch: refetchCurrentlyReading } = useCurrentlyReading(user);
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -92,6 +97,9 @@ function App() {
       is_published: data.isPublished,
     }).select('id').single();
 
+    // Move from currently_reading to posts (finished)
+    await removeCurrentlyReadingByTitle(data.book.title);
+
     if (!error && insertData) {
       refetchMine();
       refetchAll();
@@ -138,6 +146,26 @@ function App() {
     }
   };
 
+  const handleAddCurrentlyReading = async (book: SearchBook) => {
+    await addCurrentlyReading(book);
+  };
+
+  const handleStartChatFromReading = (book: CurrentlyReading) => {
+    const searchBook: SearchBook = {
+      id: book.externalId || book.id,
+      title: book.bookTitle,
+      authors: book.bookAuthor ? book.bookAuthor.split(', ') : [],
+      publisher: book.bookPublisher || '',
+      thumbnail: book.thumbnail || '',
+      coverUrls: book.coverUrls,
+      contents: book.bookContents || '',
+      url: book.bookUrl || '',
+    };
+    setReadingBook(null);
+    setPresetChatBook(searchBook);
+    setTab('chat');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Header
@@ -177,6 +205,10 @@ function App() {
             onAddNote={addReadingNote}
             onDeleteNote={deleteReadingNote}
             getNotesForBook={getNotesForBook}
+            presetBook={presetChatBook}
+            onPresetConsumed={() => setPresetChatBook(null)}
+            onAddCurrentlyReading={handleAddCurrentlyReading}
+            isCurrentlyReading={isReading}
           />
         )}
         {tab === 'mine' && (
@@ -203,9 +235,23 @@ function App() {
               fetchFollowers();
               fetchPendingRequests();
             }}
+            currentlyReading={currentlyReading}
+            onReadingBookClick={(book) => setReadingBook(book)}
+            onRemoveReading={removeCurrentlyReading}
           />
         )}
       </main>
+
+      {readingBook && (
+        <ReadingNotePage
+          book={readingBook}
+          notes={getNotesForBook(readingBook.bookTitle)}
+          onAddNote={(content, noteType) => addReadingNote(readingBook.bookTitle, readingBook.bookAuthor, content, noteType)}
+          onDeleteNote={deleteReadingNote}
+          onStartChat={() => handleStartChatFromReading(readingBook)}
+          onBack={() => setReadingBook(null)}
+        />
+      )}
 
       <BottomNav active={tab} onChange={setTab} />
 

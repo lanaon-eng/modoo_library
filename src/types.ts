@@ -82,6 +82,19 @@ export type ReadingNote = {
   createdAt: number;
 };
 
+export type CurrentlyReading = {
+  id: string;
+  bookTitle: string;
+  bookAuthor: string | null;
+  bookPublisher: string | null;
+  thumbnail: string | null;
+  coverUrls: string[];
+  bookUrl: string | null;
+  bookContents: string | null;
+  externalId: string | null;
+  createdAt: number;
+};
+
 export type Recommendation = {
   id: string;
   senderId: string;

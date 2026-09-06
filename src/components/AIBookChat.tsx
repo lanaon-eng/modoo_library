@@ -19,6 +19,10 @@ type Props = {
   onAddNote: (bookTitle: string, bookAuthor: string | null, content: string, noteType: NoteType) => void;
   onDeleteNote: (id: string) => void;
   getNotesForBook: (bookTitle: string) => ReadingNote[];
+  presetBook?: SearchBook | null;
+  onPresetConsumed?: () => void;
+  onAddCurrentlyReading?: (book: SearchBook) => void;
+  isCurrentlyReading?: (bookTitle: string) => boolean;
 };
 
 export type SaveData = {
@@ -46,7 +50,7 @@ function makeMsgId() {
   return `msg-${++msgIdCounter}-${Date.now()}`;
 }
 
-export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist, readingNotes, onAddNote, onDeleteNote, getNotesForBook }: Props) {
+export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist, readingNotes, onAddNote, onDeleteNote, getNotesForBook, presetBook, onPresetConsumed, onAddCurrentlyReading, isCurrentlyReading }: Props) {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchBook[]>([]);
@@ -55,6 +59,15 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
   const [selectedBook, setSelectedBook] = useState<SearchBook | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showNotes, setShowNotes] = useState(false);
+
+  // Handle preset book from library ("읽는 중" → AI 챗)
+  useEffect(() => {
+    if (presetBook) {
+      setSelectedBook(presetBook);
+      setStep('category');
+      onPresetConsumed?.();
+    }
+  }, [presetBook]);
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -370,6 +383,19 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
             <ArrowRight size={17} />
           </button>
         </div>
+
+        {onAddCurrentlyReading && (
+          <div className={`mt-2.5 ${showNotes ? 'hidden' : ''}`}>
+            <button
+              onClick={() => onAddCurrentlyReading(selectedBook)}
+              disabled={isCurrentlyReading?.(selectedBook.title)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-brand-400 hover:text-brand-600 active:scale-95 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400"
+            >
+              <BookMarked size={15} />
+              {isCurrentlyReading?.(selectedBook.title) ? '읽는 중인 책에 추가됨' : '읽는 중인 책에 추가'}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

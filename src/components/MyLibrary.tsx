@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { BookOpen, ChevronDown, Send, Gift, Bookmark, X } from 'lucide-react';
-import type { Book, Category, Recommendation, WishlistBook } from '@/types';
+import { BookOpen, ChevronDown, Send, Gift, Bookmark, X, BookMarked } from 'lucide-react';
+import type { Book, Category, Recommendation, WishlistBook, CurrentlyReading } from '@/types';
 import { CoverImage } from '@/components/CoverImage';
 
 type Props = {
@@ -21,6 +21,9 @@ type Props = {
   wishlist: WishlistBook[];
   onRemoveFromWishlist: (id: string) => void;
   onOpenFollowList: (tab: 'following' | 'followers') => void;
+  currentlyReading: CurrentlyReading[];
+  onReadingBookClick: (book: CurrentlyReading) => void;
+  onRemoveReading: (id: string) => void;
 };
 
 const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '도덕', '예능', '영어'];
@@ -43,6 +46,9 @@ export function MyLibrary({
   wishlist,
   onRemoveFromWishlist,
   onOpenFollowList,
+  currentlyReading,
+  onReadingBookClick,
+  onRemoveReading,
 }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
@@ -105,6 +111,55 @@ export function MyLibrary({
           </button>
         </div>
       </div>
+
+      {/* Currently reading section */}
+      {currentlyReading.length > 0 && (
+        <div className="mb-5">
+          <div className="mb-2 flex items-center gap-2">
+            <BookMarked size={15} className="text-brand-500" />
+            <h2 className="text-[14px] font-bold">읽는 중인 책 {currentlyReading.length}권</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+            {currentlyReading.map((book) => {
+              const coverUrls = book.coverUrls?.length ? book.coverUrls : book.thumbnail ? [book.thumbnail] : [];
+              return (
+                <div key={book.id} className="group relative">
+                  <button
+                    onClick={() => onReadingBookClick(book)}
+                    className="group relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-900 shadow-card transition-all hover:scale-[1.03] hover:shadow-card-hover active:scale-95"
+                  >
+                    {coverUrls.length > 0 ? (
+                      <CoverImage
+                        urls={coverUrls}
+                        alt={book.bookTitle}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        fallback={<div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 flex flex-col justify-end p-2.5">
+                      <p className="line-clamp-2 text-[11px] font-bold leading-tight text-white drop-shadow-lg">{book.bookTitle}</p>
+                      <p className="mt-0.5 truncate text-[9px] text-white/60">{book.bookAuthor || ''}</p>
+                    </div>
+                    <span className="absolute left-2 top-2 rounded-full bg-brand-500/90 px-1.5 py-0.5 text-[8px] font-bold text-white backdrop-blur-md">
+                      읽는 중
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => onRemoveReading(book.id)}
+                    aria-label="읽는 중에서 제거"
+                    className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-slate-400 opacity-0 shadow-md transition-all hover:text-red-500 group-hover:opacity-100 dark:bg-slate-800 dark:text-slate-500"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Wishlist section */}
       {wishlist.length > 0 && (
