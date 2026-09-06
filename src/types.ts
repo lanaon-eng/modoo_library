@@ -43,19 +43,6 @@ export type SearchBook = {
   url: string;
 };
 
-export type ReadingCard = {
-  id: string;
-  bookId: string;
-  bookTitle: string;
-  bookAuthor: string;
-  thumbnail: string;
-  coverUrls: string[];
-  characterName: string;
-  characterEmoji: string;
-  insight: string;
-  createdAt: number;
-};
-
 export type FollowUser = {
   id: string;
   nickname: string;

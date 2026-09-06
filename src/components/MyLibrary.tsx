@@ -1,16 +1,14 @@
 import { useState, useMemo } from 'react';
 import { BookOpen, ChevronDown, Send, Gift, Bookmark, X } from 'lucide-react';
-import type { Book, Category, ReadingCard, Recommendation, WishlistBook } from '@/types';
+import type { Book, Category, Recommendation, WishlistBook } from '@/types';
 import { CoverImage } from '@/components/CoverImage';
 
 type Props = {
   books: Book[];
-  cards: ReadingCard[];
   onRemove: (id: string) => void;
   onAdd: () => void;
   onTogglePublish: (id: string, isPublished: boolean) => void;
   onBookClick: (book: Book) => void;
-  onCardClick: (card: ReadingCard) => void;
   nickname: string;
   avatarUrl: string | null;
   followerCount: number;
@@ -27,12 +25,10 @@ const CATEGORIES: Category[] = ['국어', '사회', '과학기술', '수학', '�
 
 export function MyLibrary({
   books,
-  cards,
   onRemove,
   onAdd,
   onTogglePublish,
   onBookClick,
-  onCardClick,
   nickname,
   avatarUrl,
   followerCount,
@@ -221,50 +217,6 @@ export function MyLibrary({
             </div>
           )}
         </div>
-      )}
-
-      {/* Reading cards section */}
-      {cards.length > 0 && (
-        <section className="mb-5">
-          <div className="mb-3 flex items-center gap-2">
-            <BookOpen size={15} className="text-brand-500" />
-            <h2 className="text-[14px] font-bold">독서 카드</h2>
-            <span className="text-[11px] text-ink-400">{cards.length}장</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {cards.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => onCardClick(card)}
-                className="group relative aspect-[3/4] overflow-hidden rounded-xl bg-ink-900 transition-all hover:scale-[1.03] hover:shadow-lg active:scale-95"
-              >
-                {(() => {
-                  const urls = card.coverUrls?.length ? card.coverUrls : card.thumbnail ? [card.thumbnail] : [];
-                  return urls.length > 0 ? (
-                    <CoverImage
-                      urls={urls}
-                      alt={card.bookTitle}
-                      className="absolute inset-0 h-full w-full object-cover"
-                      fallback={<div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink-950" />
-                  );
-                })()}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-between p-2.5">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[11px]">{card.characterEmoji}</span>
-                  </div>
-                  <div>
-                    <p className="line-clamp-3 text-[10.5px] font-bold leading-tight text-white">{card.insight}</p>
-                    <p className="mt-1 truncate text-[8.5px] text-white/60">{card.bookTitle}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
       )}
 
       {/* Filter bar */}

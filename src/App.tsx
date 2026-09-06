@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { PublicFeed } from '@/components/PublicFeed';
 import { MyLibrary } from '@/components/MyLibrary';
-import { CardViewerModal } from '@/components/CardViewerModal';
 import { BookFeedModal } from '@/components/BookFeedModal';
 import { LoginScreen } from '@/components/LoginScreen';
 import { KakaoCallback } from '@/components/KakaoCallback';
@@ -12,13 +11,12 @@ import { NicknameModal } from '@/components/NicknameModal';
 import { RecommendModal } from '@/components/RecommendModal';
 import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
-import { useCards } from '@/hooks/useCards';
 import { useAuth } from '@/hooks/useAuth';
 import { useFollows } from '@/hooks/useFollows';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useWishlist } from '@/hooks/useWishlist';
 import { supabase } from '@/lib/supabase';
-import type { ReadingCard, Book, SearchBook } from '@/types';
+import type { Book, SearchBook } from '@/types';
 
 const TAB_TITLES: Record<FeedTab, string> = {
   all: '모두의 서재',
@@ -30,7 +28,6 @@ function App() {
   const { theme, toggleTheme } = useTheme();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<FeedTab>('all');
-  const [viewCard, setViewCard] = useState<ReadingCard | null>(null);
   const [viewBook, setViewBook] = useState<Book | null>(null);
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
@@ -38,7 +35,6 @@ function App() {
 
   const { books: allBooks, toggleLike: toggleLikeAll, likedIds: likedIdsAll, refetch: refetchAll } = useBooks(user, 'all');
   const { books: myBooks, removeBook, updateBook, refetch: refetchMine } = useBooks(user, 'mine');
-  const { cards, addCard } = useCards();
   const { followingIds, followerCount, followingCount, followingList, toggleFollow, refetch: refetchFollows } = useFollows(user);
   const { received: recommendations, unreadCount: unreadRecCount, sendRecommendation, markAllAsRead, refetch: refetchRecs } = useRecommendations(user);
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
@@ -92,24 +88,14 @@ function App() {
     }).select('id').single();
 
     if (!error && insertData) {
-      const card: ReadingCard = {
-        id: `card-${insertData.id}-${Date.now()}`,
-        bookId: insertData.id as string,
-        bookTitle: data.book.title,
-        bookAuthor: data.book.authors.join(', '),
-        thumbnail: data.book.thumbnail,
-        coverUrls,
-        characterName: 'AI 북챗',
-        characterEmoji: '✨',
-        insight: data.chatCards[1]?.content || data.userReview || '대화하며 깊이 생각해보았어요.',
-        createdAt: Date.now(),
-      };
-      addCard(card);
+      refetchMine();
+      refetchAll();
+      setTab(data.isPublished ? 'all' : 'mine');
+    } else {
+      refetchMine();
+      refetchAll();
+      setTab(data.isPublished ? 'all' : 'mine');
     }
-
-    refetchMine();
-    refetchAll();
-    setTab(data.isPublished ? 'all' : 'mine');
   };
 
   const handleTogglePublish = (id: string, isPublished: boolean) => {
@@ -186,12 +172,10 @@ function App() {
         {tab === 'mine' && (
           <MyLibrary
             books={myBooks}
-            cards={cards}
             onRemove={removeBook}
             onAdd={() => setTab('chat')}
             onTogglePublish={handleTogglePublish}
             onBookClick={(book) => setViewBook(book)}
-            onCardClick={(card) => setViewCard(card)}
             nickname={nickname}
             avatarUrl={avatarUrl}
             followerCount={followerCount}
@@ -207,13 +191,6 @@ function App() {
       </main>
 
       <BottomNav active={tab} onChange={setTab} />
-
-      <CardViewerModal
-        card={viewCard}
-        open={!!viewCard}
-        onClose={() => setViewCard(null)}
-        nickname={nickname}
-      />
 
       <BookFeedModal
         book={viewBook}
