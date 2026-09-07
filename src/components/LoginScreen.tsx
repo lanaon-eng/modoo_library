@@ -46,7 +46,7 @@ export function LoginScreen() {
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/30">
           <BookOpen size={32} strokeWidth={2.2} />
         </div>
-        <h1 className="mt-5 text-[22px] font-bold tracking-tight">북로그</h1>
+        <h1 className="mt-5 text-[22px] font-bold tracking-tight">모두의 서재</h1>
       </div>
 
       {error && (
