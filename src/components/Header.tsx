@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Moon, Sun, LogOut, ChevronDown, Pencil } from 'lucide-react';
+import { LogOut, ChevronDown, Pencil } from 'lucide-react';
 
 const LOGO_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/asset/Gemini_Generated_Image_v2x2suv2x2suv2x2%20(1).png`;
 
 type Props = {
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
   title: string;
   nickname: string;
   avatarUrl: string | null;
@@ -13,7 +11,7 @@ type Props = {
   onEditNickname: () => void;
 };
 
-export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSignOut, onEditNickname }: Props) {
+export function Header({ title, nickname, avatarUrl, onSignOut, onEditNickname }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,13 +35,6 @@ export function Header({ theme, onToggleTheme, title, nickname, avatarUrl, onSig
         </div>
 
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={onToggleTheme}
-            aria-label="테마 전환"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           {/* Profile */}
           <div ref={menuRef} className="relative">
             <button

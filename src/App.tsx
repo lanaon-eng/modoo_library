@@ -11,7 +11,6 @@ import { ReadingNotePage } from '@/components/ReadingNotePage';
 import { NicknameModal } from '@/components/NicknameModal';
 import { RecommendModal } from '@/components/RecommendModal';
 import { FollowListModal } from '@/components/FollowListModal';
-import { useTheme } from '@/hooks/useTheme';
 import { useBooks } from '@/hooks/useBooks';
 import { useAuth } from '@/hooks/useAuth';
 import { useFollows } from '@/hooks/useFollows';
@@ -29,7 +28,6 @@ const TAB_TITLES: Record<FeedTab, string> = {
 };
 
 function App() {
-  const { theme, toggleTheme } = useTheme();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<FeedTab>('all');
   const [viewBook, setViewBook] = useState<Book | null>(null);
@@ -169,8 +167,6 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Header
-        theme={theme}
-        onToggleTheme={toggleTheme}
         title={TAB_TITLES[tab]}
         nickname={nickname}
         avatarUrl={avatarUrl}
