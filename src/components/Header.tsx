@@ -29,7 +29,9 @@ export function Header({ title, nickname, avatarUrl, onSignOut, onEditNickname }
     <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-950/80">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <img src={LOGO_URL} alt="북톡" className="h-8 w-8 rounded-lg object-cover" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+            <img src={LOGO_URL} alt="북톡" className="h-full w-full rounded-lg object-cover" />
+          </div>
           <h1 className="text-[16px] font-bold tracking-tight">{title}</h1>
         </div>
 

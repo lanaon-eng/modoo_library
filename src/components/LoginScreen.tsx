@@ -44,11 +44,13 @@ export function LoginScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 dark:bg-slate-950">
       <div className="flex flex-col items-center">
-        <img
-          src={LOGO_URL}
-          alt="모두의 서재 로고"
-          className="h-24 w-24 rounded-[28px] object-cover shadow-lg shadow-brand-500/20"
-        />
+        <div className="flex h-24 w-24 items-center justify-center rounded-[28px] bg-white shadow-lg shadow-brand-500/20">
+          <img
+            src={LOGO_URL}
+            alt="모두의 서재 로고"
+            className="h-full w-full rounded-[28px] object-cover"
+          />
+        </div>
         <h1 className="mt-5 text-[22px] font-bold tracking-tight">모두의 서재</h1>
       </div>
 
