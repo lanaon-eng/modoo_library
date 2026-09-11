@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { BookOpen, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { LOGO_URL } from '@/lib/brand';
 
 const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID as string;
 const KAKAO_REDIRECT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kakao-auth`;
@@ -43,9 +44,11 @@ export function LoginScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 dark:bg-slate-950">
       <div className="flex flex-col items-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/30">
-          <BookOpen size={32} strokeWidth={2.2} />
-        </div>
+        <img
+          src={LOGO_URL}
+          alt="모두의 서재 로고"
+          className="h-24 w-24 rounded-[28px] object-cover shadow-lg shadow-brand-500/20"
+        />
         <h1 className="mt-5 text-[22px] font-bold tracking-tight">모두의 서재</h1>
       </div>
 
