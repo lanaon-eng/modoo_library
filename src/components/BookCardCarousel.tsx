@@ -152,19 +152,19 @@ function SummaryCard({ title, content }: { title: string; content: string }) {
   return (
     <>
       <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950" />
-      <div className="absolute inset-0 flex flex-col justify-between p-5">
+      <div className="absolute inset-0 flex flex-col p-5">
         <div className="flex items-center gap-2">
           <BookOpen size={20} className="text-white/70" />
           <span className="text-[13px] font-bold text-white/80">{title}</span>
         </div>
-        <div className="flex-1 flex items-center py-4">
+        <div className={`mt-3 flex-1 ${expanded ? 'overflow-y-auto no-scrollbar' : 'flex items-center'}`}>
           <p
             className={`text-[14px] leading-relaxed text-white/90 ${!expanded && isLong ? 'line-clamp-4' : ''}`}
           >
             {content}
           </p>
         </div>
-        <div>
+        <div className="mt-2">
           <div className="h-px w-full bg-white/15" />
           <div className="mt-2 flex items-center justify-between">
             <span className="truncate text-[12px] font-bold text-white/60">책 소개</span>
