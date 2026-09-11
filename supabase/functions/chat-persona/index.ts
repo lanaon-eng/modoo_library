@@ -48,6 +48,7 @@ function buildSystemPrompt(
   userNote: string | undefined,
   category: string | undefined,
   notesFormatted: string,
+  hasPriorMessages: boolean,
 ): string {
   return `
 [도서 정보]
@@ -59,7 +60,11 @@ ${userNote ? `- 책 소개: ${userNote}` : ""}
 [독자가 읽으며 남긴 메모]
 ${notesFormatted || "(아직 남긴 메모가 없습니다)"}
 
-[화자의 페르소나 및 문체]
+${hasPriorMessages ? `[이전 대화 기록]
+독자와 이전에 이 책에 대해 나눈 대화가 아래 메시지 목록에 포함되어 있습니다. 이전 대화에서 다룬 내용을 자연스럽게 이어받고, 독자의 생각이 어떻게 발전했는지 참고하여 더 깊이 있는 조언을 제공하세요. 이전에 나눈 이야기를 반복하지 말고, 새로운 각도나 더 깊은 질문으로 대화를 이어가세요.
+
+[화자의 페르소나 및 문체]` : `[화자의 페르소나 및 문체]`}</parameter>
+}
 - 책 장르에 맞게 변신: 소설(주인공/주요 인물), 사회과학(날카로운 현장 기자), 과학/자기계발(경험 많은 멘토)
 - 문체: 《아몬드》처럼 감정을 덜어낸 담백한 단문 위주. 꼰대 말투나 교과서식 칭찬 금지.
 - 호흡: 한 턴에 공감/리액션 1~2줄 + 질문 딱 1개.
@@ -173,7 +178,8 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
     }
 
     // Default: chat action
-    const systemPrompt = buildSystemPrompt(bookTitle, bookAuthor, userNote, category, notesFormatted);
+    const hasPriorMessages = safeMessages.length > 0;
+    const systemPrompt = buildSystemPrompt(bookTitle, bookAuthor, userNote, category, notesFormatted, hasPriorMessages);
 
     const openaiMessages = [
       { role: "system" as const, content: systemPrompt },

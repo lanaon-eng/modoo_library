@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Search, BookOpen, ArrowRight, ArrowLeft, X, Send,
   Sparkles, Loader2, BookMarked, Globe, Bookmark, Check,
-  StickyNote,
+  StickyNote, Trash2, MessageCircle,
 } from 'lucide-react';
 import type { SearchBook, Category, ChatCard, ChatMessage, ReadingNote, NoteType } from '@/types';
 import { fetchPersonaReply, generateChatCards } from '@/lib/chatApi';
@@ -23,6 +23,10 @@ type Props = {
   onPresetConsumed?: () => void;
   onAddCurrentlyReading?: (book: SearchBook) => void;
   isCurrentlyReading?: (bookTitle: string) => boolean;
+  fetchChatHistory: (bookTitle: string) => Promise<ChatMessage[]>;
+  saveChatMessage: (bookTitle: string, role: 'user' | 'character', content: string, category?: string) => Promise<string | null>;
+  deleteChatHistory: (bookTitle: string) => Promise<boolean>;
+  hasChatHistory: (bookTitle: string) => Promise<boolean>;
 };
 
 export type SaveData = {
@@ -50,7 +54,7 @@ function makeMsgId() {
   return `msg-${++msgIdCounter}-${Date.now()}`;
 }
 
-export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist, readingNotes, onAddNote, onDeleteNote, getNotesForBook, presetBook, onPresetConsumed, onAddCurrentlyReading, isCurrentlyReading }: Props) {
+export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggleWishlist, readingNotes, onAddNote, onDeleteNote, getNotesForBook, presetBook, onPresetConsumed, onAddCurrentlyReading, isCurrentlyReading, fetchChatHistory, saveChatMessage, deleteChatHistory, hasChatHistory }: Props) {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchBook[]>([]);
@@ -59,6 +63,9 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
   const [selectedBook, setSelectedBook] = useState<SearchBook | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showNotes, setShowNotes] = useState(false);
+  const [hasHistoryMap, setHasHistoryMap] = useState<Record<string, boolean>>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [resuming, setResuming] = useState(false);
 
   // Handle preset book from library ("읽는 중" → AI 챗)
   useEffect(() => {
@@ -68,6 +75,25 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       onPresetConsumed?.();
     }
   }, [presetBook]);
+
+  // Check which search results have existing chat history
+  const checkHistoryForResults = useCallback(async (books: SearchBook[]) => {
+    const checks = await Promise.all(
+      books.map(async (b) => {
+        const has = await hasChatHistory(b.title);
+        return [b.title, has] as const;
+      })
+    );
+    const map: Record<string, boolean> = {};
+    for (const [title, has] of checks) map[title] = has;
+    setHasHistoryMap((prev) => ({ ...prev, ...map }));
+  }, [hasChatHistory]);
+
+  useEffect(() => {
+    if (results.length > 0) {
+      checkHistoryForResults(results);
+    }
+  }, [results, checkHistoryForResults]);
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -111,23 +137,39 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     chatStartedRef.current = true;
 
     const bookNotes = getNotesForBook(selectedBook.title);
-    setTyping(true);
-    fetchPersonaReply(
-      selectedBook.title,
-      selectedBook.authors.join(', '),
-      selectedBook.contents,
-      [],
-      false,
-      bookNotes
-    )
-      .then((reply) => {
+    const category = selectedCategory;
+
+    (async () => {
+      setTyping(true);
+      const existing = await fetchChatHistory(selectedBook.title);
+      if (existing.length > 0) {
+        setResuming(true);
+        setMessages(existing);
+        setUserTurns(existing.filter((m) => m.role === 'user').length);
+        setCanComplete(existing.filter((m) => m.role === 'user').length >= 2);
         setTyping(false);
-        setMessages([{ id: makeMsgId(), role: 'character', text: reply }]);
-      })
-      .catch(() => {
-        setTyping(false);
-        setMessages([{ id: makeMsgId(), role: 'character', text: '잠시 연결이 원활하지 않아요. 다시 시도해주세요.' }]);
-      });
+        setResuming(false);
+        return;
+      }
+      fetchPersonaReply(
+        selectedBook.title,
+        selectedBook.authors.join(', '),
+        selectedBook.contents,
+        [],
+        false,
+        bookNotes
+      )
+        .then(async (reply) => {
+          setTyping(false);
+          const msgId = makeMsgId();
+          setMessages([{ id: msgId, role: 'character', text: reply }]);
+          await saveChatMessage(selectedBook.title, 'character', reply, category);
+        })
+        .catch(() => {
+          setTyping(false);
+          setMessages([{ id: makeMsgId(), role: 'character', text: '잠시 연결이 원활하지 않아요. 다시 시도해주세요.' }]);
+        });
+    })();
   }, [step, selectedBook, selectedCategory]);
 
   // Auto-scroll chat
@@ -163,6 +205,8 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     const nextTurn = userTurns + 1;
     setUserTurns(nextTurn);
 
+    saveChatMessage(selectedBook.title, 'user', text.trim(), selectedCategory);
+
     const bookNotes = getNotesForBook(selectedBook.title);
     fetchPersonaReply(
       selectedBook.title,
@@ -172,9 +216,10 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       false,
       bookNotes
     )
-      .then((reply) => {
+      .then(async (reply) => {
         setTyping(false);
         setMessages((prev) => [...prev, { id: makeMsgId(), role: 'character', text: reply }]);
+        await saveChatMessage(selectedBook.title, 'character', reply, selectedCategory);
         if (nextTurn >= 2) setCanComplete(true);
       })
       .catch(() => {
@@ -191,6 +236,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     const closingText = '좋은 대화였어요! 우리가 나눈 이야기를 카드로 만들어볼까요?';
     const finalMessages = [...messages, { id: makeMsgId(), role: 'character' as const, text: closingText }];
     setMessages(finalMessages);
+    saveChatMessage(selectedBook.title, 'character', closingText, selectedCategory);
     setStep('cards');
     setGeneratingCards(true);
 
@@ -243,7 +289,17 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     setResults([]);
     setSearched(false);
     setShowNotes(false);
+    setShowDeleteConfirm(false);
+    setResuming(false);
     chatStartedRef.current = false;
+  };
+
+  const handleDeleteHistory = async () => {
+    if (!selectedBook) return;
+    await deleteChatHistory(selectedBook.title);
+    setHasHistoryMap((prev) => { const m = { ...prev }; delete m[selectedBook.title]; return m; });
+    setShowDeleteConfirm(false);
+    resetAll();
   };
 
   // --- SEARCH STEP ---
@@ -299,6 +355,12 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                         <p className="mt-0.5 truncate text-[11.5px] text-slate-500 dark:text-slate-400">
                           {book.authors.join(', ')} · {book.publisher}
                         </p>
+                        {hasHistoryMap[book.title] && (
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-600 dark:bg-brand-900/20 dark:text-brand-400">
+                            <MessageCircle size={10} />
+                            대화 이어하기
+                          </span>
+                        )}
                       </div>
                       {exists && (
                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:bg-slate-800">보유</span>
@@ -420,9 +482,16 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
               {selectedBook.title}
             </p>
             <p className="truncate text-[11px] text-slate-400">
-              AI와 책 이야기 나누는 중
+              {resuming ? '대화 기록 불러오는 중...' : 'AI와 책 이야기 나누는 중'}
             </p>
           </div>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
+            aria-label="대화 기록 삭제"
+          >
+            <Trash2 size={16} />
+          </button>
           <button
             onClick={() => setShowNotes(!showNotes)}
             className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-bold transition-all ${
@@ -449,6 +518,27 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
               onAdd={(content, noteType) => onAddNote(selectedBook.title, selectedBook.authors.join(', ') || null, content, noteType)}
               onDelete={onDeleteNote}
             />
+          </div>
+        )}
+
+        {/* Delete confirmation */}
+        {showDeleteConfirm && (
+          <div className="flex items-center justify-between gap-3 bg-red-50 px-4 py-2.5 dark:bg-red-950/30">
+            <p className="text-[12px] font-bold text-red-600 dark:text-red-400">대화 기록을 삭제할까요?</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg px-3 py-1.5 text-[12px] font-bold text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteHistory}
+                className="rounded-lg bg-red-500 px-3 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-red-600"
+              >
+                삭제
+              </button>
+            </div>
           </div>
         )}
 

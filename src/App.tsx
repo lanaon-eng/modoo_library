@@ -18,6 +18,7 @@ import { useRecommendations } from '@/hooks/useRecommendations';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useReadingNotes } from '@/hooks/useReadingNotes';
 import { useCurrentlyReading } from '@/hooks/useCurrentlyReading';
+import { useChatHistory } from '@/hooks/useChatHistory';
 import { supabase } from '@/lib/supabase';
 import type { Book, SearchBook, CurrentlyReading } from '@/types';
 
@@ -46,6 +47,7 @@ function App() {
   const { wishlist, addToWishlist, removeFromWishlist, isInWishlist, refetch: refetchWishlist } = useWishlist(user);
   const { notes: readingNotes, addNote: addReadingNote, deleteNote: deleteReadingNote, getNotesForBook } = useReadingNotes(user);
   const { books: currentlyReading, addBook: addCurrentlyReading, removeBook: removeCurrentlyReading, removeByTitle: removeCurrentlyReadingByTitle, isReading, refetch: refetchCurrentlyReading } = useCurrentlyReading(user);
+  const { fetchChatHistory, saveChatMessage, deleteChatHistory, hasChatHistory } = useChatHistory(user);
 
   if (window.location.pathname === '/auth/kakao') {
     return <KakaoCallback />;
@@ -216,6 +218,10 @@ function App() {
                 onPresetConsumed={() => setPresetChatBook(null)}
                 onAddCurrentlyReading={handleAddCurrentlyReading}
                 isCurrentlyReading={isReading}
+                fetchChatHistory={fetchChatHistory}
+                saveChatMessage={saveChatMessage}
+                deleteChatHistory={deleteChatHistory}
+                hasChatHistory={hasChatHistory}
               />
             )}
             {tab === 'mine' && (
