@@ -201,7 +201,7 @@ function FeedPostCard({
               <Star
                 key={star}
                 size={13}
-                className={star <= book.rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-100 text-slate-300 dark:fill-slate-800 dark:text-slate-700'}
+                className={star <= (book.rating ?? 0) ? 'fill-amber-400 text-amber-400' : 'fill-slate-100 text-slate-300 dark:fill-slate-800 dark:text-slate-700'}
               />
             ))}
           </div>

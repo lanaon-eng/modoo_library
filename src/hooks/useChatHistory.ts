@@ -86,8 +86,8 @@ export function useChatHistory(user: User | null) {
   return {
     loaded,
     fetchChatHistory,
-    saveMessage,
+    saveChatMessage: saveMessage,
     deleteChatHistory,
-    hasHistory,
+    hasChatHistory: hasHistory,
   };
 }

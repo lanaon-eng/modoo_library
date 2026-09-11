@@ -249,7 +249,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     const closingText = '좋은 대화였어요! 우리가 나눈 이야기를 카드로 만들어볼까요?';
     const finalMessages = [...messages, { id: makeMsgId(), role: 'character' as const, text: closingText }];
     setMessages(finalMessages);
-    saveChatMessage(selectedBook.title, 'character', closingText, selectedCategory);
+    saveChatMessage(selectedBook.title, 'character', closingText, selectedCategory ?? undefined);
     setStep('cards');
     setGeneratingCards(true);
 
