@@ -15,6 +15,7 @@ type PostRow = {
   category: string | null;
   chat_cards: ChatCard[] | null;
   user_review: string | null;
+  rating: number | null;
   is_published: boolean | null;
   likes_count: number | null;
   created_at: string;
@@ -39,6 +40,7 @@ function mapRow(row: PostRow): Book {
     addedAt: new Date(row.created_at).getTime(),
     category: (row.category as Category) ?? undefined,
     userReview: row.user_review ?? undefined,
+    rating: row.rating ?? undefined,
     isPublished: row.is_published ?? false,
     likesCount: row.likes_count ?? 0,
     chatCards: row.chat_cards ?? undefined,

@@ -94,6 +94,7 @@ function App() {
       category: data.category,
       chat_cards: data.chatCards,
       user_review: data.userReview || null,
+      rating: data.rating || null,
       is_published: data.isPublished,
     }).select('id').single();
 

@@ -10,6 +10,7 @@ export type ChatCard = {
   title: string;
   content: string;
   emoji?: string;
+  color?: string;
 };
 
 export type Book = {
@@ -24,6 +25,7 @@ export type Book = {
   addedAt: number;
   category?: Category;
   userReview?: string;
+  rating?: number;
   isPublished?: boolean;
   likesCount?: number;
   chatCards?: ChatCard[];

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Heart, BookOpen, Search, X, UserPlus, Check, Clock } from 'lucide-react';
+import { Heart, BookOpen, Search, X, UserPlus, Check, Clock, Star } from 'lucide-react';
 import type { Book } from '@/types';
 import { BookCardCarousel } from './BookCardCarousel';
 
@@ -195,6 +195,17 @@ function FeedPostCard({
         <p className="mt-0.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
           {book.authors.join(', ') || '저자 미상'}
         </p>
+        {book.rating && book.rating > 0 && (
+          <div className="mt-2 flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={13}
+                className={star <= book.rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-100 text-slate-300 dark:fill-slate-800 dark:text-slate-700'}
+              />
+            ))}
+          </div>
+        )}
         {book.userReview && (
           <p className="mt-2 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">{book.userReview}</p>
         )}

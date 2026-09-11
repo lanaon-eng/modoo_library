@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Search, BookOpen, ArrowRight, ArrowLeft, X, Send,
   Sparkles, Loader2, BookMarked, Globe, Bookmark, Check,
-  StickyNote, Trash2, MessageCircle,
+  StickyNote, Trash2, MessageCircle, Star, Palette,
 } from 'lucide-react';
 import type { SearchBook, Category, ChatCard, ChatMessage, ReadingNote, NoteType } from '@/types';
 import { fetchPersonaReply, generateChatCards } from '@/lib/chatApi';
@@ -34,6 +34,7 @@ export type SaveData = {
   category: Category;
   chatCards: ChatCard[];
   userReview: string;
+  rating: number;
   isPublished: boolean;
 };
 
@@ -47,6 +48,15 @@ const CATEGORIES: { id: Category; label: string; emoji: string }[] = [
   { id: '도덕', label: '도덕', emoji: '🤝' },
   { id: '예능', label: '예능', emoji: '🎨' },
   { id: '영어', label: '영어', emoji: '🔤' },
+];
+
+const CARD_COLORS = [
+  { id: 'brand', gradient: 'from-brand-600 to-brand-800', label: '브랜드', swatch: 'bg-brand-500' },
+  { id: 'ocean', gradient: 'from-cyan-600 to-blue-800', label: '오션', swatch: 'bg-cyan-500' },
+  { id: 'sunset', gradient: 'from-orange-500 to-rose-700', label: '선셋', swatch: 'bg-orange-500' },
+  { id: 'forest', gradient: 'from-emerald-600 to-green-800', label: '포레스트', swatch: 'bg-emerald-500' },
+  { id: 'slate', gradient: 'from-slate-700 to-slate-950', label: '슬레이트', swatch: 'bg-slate-600' },
+  { id: 'plum', gradient: 'from-fuchsia-600 to-purple-800', label: '플럼', swatch: 'bg-fuchsia-500' },
 ];
 
 let msgIdCounter = 0;
@@ -109,6 +119,9 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
   const [generatingCards, setGeneratingCards] = useState(false);
   const [userReview, setUserReview] = useState('');
   const [saving, setSaving] = useState(false);
+  const [cardColor, setCardColor] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   // Search debounce
   useEffect(() => {
@@ -269,8 +282,9 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     onSave({
       book: selectedBook,
       category: selectedCategory,
-      chatCards: chatCards,
+      chatCards: chatCards.map((c, i) => ({ ...c, color: CARD_COLORS[cardColor].id })),
       userReview: userReview.trim(),
+      rating,
       isPublished,
     });
   };
@@ -291,6 +305,9 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
     setShowNotes(false);
     setShowDeleteConfirm(false);
     setResuming(false);
+    setCardColor(0);
+    setRating(0);
+    setHoverRating(0);
     chatStartedRef.current = false;
   };
 
@@ -630,6 +647,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       { title: selectedBook.title, content: selectedBook.authors.join(', '), emoji: '📖' },
       ...chatCards,
     ];
+    const activeColor = CARD_COLORS[cardColor];
 
     return (
       <div className="px-4 py-4">
@@ -670,7 +688,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
                 </>
               ) : (
                 <>
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand-600 to-brand-800" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${activeColor.gradient}`} />
                   <div className="absolute inset-0 flex flex-col justify-between p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{card.emoji}</span>
@@ -693,6 +711,61 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
           {allCards.map((_, i) => (
             <div key={i} className="h-1.5 w-1.5 rounded-full bg-slate-200 dark:bg-slate-700" />
           ))}
+        </div>
+
+        {/* Card color picker */}
+        <div className="mt-5">
+          <div className="mb-2.5 flex items-center gap-1.5">
+            <Palette size={14} className="text-slate-500 dark:text-slate-400" />
+            <p className="text-[13px] font-bold">카드 색상</p>
+            <span className="text-[11px] font-medium text-slate-400">{activeColor.label}</span>
+          </div>
+          <div className="flex gap-2">
+            {CARD_COLORS.map((color, i) => (
+              <button
+                key={color.id}
+                onClick={() => setCardColor(i)}
+                className={`flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-90 ${
+                  i === cardColor ? 'ring-2 ring-offset-2 ring-slate-400 dark:ring-offset-slate-900' : ''
+                }`}
+                aria-label={color.label}
+              >
+                <span className={`h-7 w-7 rounded-full ${color.swatch}`} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Star rating */}
+        <div className="mt-5">
+          <div className="mb-2.5 flex items-center gap-1.5">
+            <Star size={14} className="text-slate-500 dark:text-slate-400" />
+            <p className="text-[13px] font-bold">이 책 별점</p>
+            {rating > 0 && (
+              <span className="text-[11px] font-medium text-slate-400">{rating}점</span>
+            )}
+          </div>
+          <div className="flex gap-1.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => setRating(rating === star ? 0 : star)}
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+                className="transition-transform active:scale-90"
+                aria-label={`${star}점`}
+              >
+                <Star
+                  size={32}
+                  className={`transition-colors ${
+                    (hoverRating || rating) >= star
+                      ? 'fill-amber-400 text-amber-400'
+                      : 'fill-slate-100 text-slate-300 dark:fill-slate-800 dark:text-slate-700'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* User review input */}
