@@ -131,6 +131,7 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
       ];
 
       const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        signal: AbortSignal.timeout(30000),
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -189,6 +190,7 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
     ];
 
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      signal: AbortSignal.timeout(30000),
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -225,8 +227,10 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Internal server error";
+    const isTimeout = message.includes("timed out") || message.includes("aborted");
     return new Response(
-      JSON.stringify({ error: err.message || "Internal server error" }),
+      JSON.stringify({ error: isTimeout ? "AI 응답 시간이 초과되었어요. 잠시 후 다시 시도해주세요." : message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

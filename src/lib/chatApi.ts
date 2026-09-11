@@ -22,14 +22,21 @@ function toApiMessages(messages: ChatMessage[]): ApiMessage[] {
 
 async function invokePersona(body: {
   bookTitle: string;
-  author: string;
+  bookAuthor: string;
   userNote: string;
   messages: ApiMessage[];
   action: ChatAction;
   readingNotes?: ReadingNote[];
 }): Promise<ApiResponse> {
   const { data, error } = await supabase.functions.invoke('chat-persona', { body });
-  if (error) throw new Error(error.message);
+  if (error) {
+    const responseContext = 'context' in error && error.context instanceof Response
+      ? await error.context.clone().json().catch(() => null) as { error?: string; detail?: string } | null
+      : null;
+    const detail = responseContext?.error || responseContext?.detail;
+    throw new Error(detail || error.message || 'AI 연결에 실패했어요.');
+  }
+  if (!data || typeof data !== 'object') throw new Error('AI 응답을 확인할 수 없어요.');
   return data as ApiResponse;
 }
 
@@ -43,7 +50,7 @@ export async function fetchPersonaReply(
 ): Promise<string> {
   const data = await invokePersona({
     bookTitle,
-    author: bookAuthor || '미상',
+    bookAuthor: bookAuthor || '미상',
     userNote,
     messages: toApiMessages(messages),
     action: isSummarizing ? 'summarize' : 'chat',
@@ -64,7 +71,7 @@ export async function generateChatCards(
 ): Promise<ChatCard[]> {
   const data = await invokePersona({
     bookTitle,
-    author: bookAuthor || '미상',
+    bookAuthor: bookAuthor || '미상',
     userNote,
     messages: toApiMessages(messages),
     action: 'summarize',
