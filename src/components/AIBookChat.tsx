@@ -126,7 +126,7 @@ export function AIBookChat({ onSave, existingBookTitles, wishlistTitles, onToggl
       })
       .catch(() => {
         setTyping(false);
-        setMessages([{ id: makeMsgId(), role: 'character', text: '이 책에 대해 어떤 점이 가장 기억에 남았나요? 자유롭게 이야기해보세요.' }]);
+        setMessages([{ id: makeMsgId(), role: 'character', text: '잠시 연결이 원활하지 않아요. 다시 시도해주세요.' }]);
       });
   }, [step, selectedBook, selectedCategory]);
 

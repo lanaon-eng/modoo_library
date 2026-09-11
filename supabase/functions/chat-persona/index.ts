@@ -115,12 +115,13 @@ Deno.serve(async (req: Request) => {
     const body = await req.json() as RequestBody;
     const { bookTitle, bookAuthor, userNote, category, action, messages, readingNotes } = body;
 
-    if (!bookTitle || !messages || messages.length === 0) {
+    if (!bookTitle) {
       return new Response(
-        JSON.stringify({ error: "bookTitle, messages are required" }),
+        JSON.stringify({ error: "bookTitle is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+    const safeMessages = messages || [];
 
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
@@ -147,7 +148,7 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
 
       const openaiMessages = [
         { role: "system" as const, content: systemPrompt },
-        ...messages.map((m) => ({
+        ...safeMessages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
         })),
@@ -204,7 +205,7 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
 
     const openaiMessages = [
       { role: "system" as const, content: systemPrompt },
-      ...messages.map((m) => ({
+      ...safeMessages.map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
       })),
