@@ -1,8 +1,5 @@
-[functions.quick-processor]
-verify_jwt = true
-
 [functions.chat-persona]
-verify_jwt = false
+verify_jwt = true
 
 [functions.kakao-auth]
 verify_jwt = false

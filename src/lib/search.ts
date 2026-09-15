@@ -212,4 +212,4 @@ export async function searchBooks(query: string): Promise<SearchBook[]> {
   );
 }
 
-export const MOCK_BOOKS_EXPORT = MOCK_BOOKS;
+

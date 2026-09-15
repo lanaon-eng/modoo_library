@@ -85,6 +85,59 @@ ${hasPriorMessages ? `[이전 대화 기록]
 `;
 }
 
+function jsonBody(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function callOpenAI(
+  apiKey: string,
+  systemPrompt: string,
+  messages: { role: "user" | "assistant"; content: string }[],
+  maxTokens: number,
+  temperature: number,
+): Promise<string> {
+  const openaiMessages = [
+    { role: "system" as const, content: systemPrompt },
+    ...messages.map((m) => ({ role: m.role, content: m.content })),
+  ];
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    signal: AbortSignal.timeout(30000),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: openaiMessages,
+      max_tokens: maxTokens,
+      temperature,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new OpenAIError(`OpenAI API error: ${res.status}`, errText);
+  }
+
+  const data = await res.json();
+  const reply = data.choices?.[0]?.message?.content;
+  if (!reply) throw new OpenAIError("Empty response from OpenAI");
+  return reply;
+}
+
+class OpenAIError extends Error {
+  detail: string;
+  constructor(message: string, detail = "") {
+    super(message);
+    this.detail = detail;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -95,25 +148,19 @@ Deno.serve(async (req: Request) => {
     const { bookTitle, bookAuthor, userNote, category, action, messages, readingNotes } = body;
 
     if (!bookTitle) {
-      return new Response(
-        JSON.stringify({ error: "bookTitle is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return jsonBody({ error: "bookTitle is required" }, 400);
     }
     const safeMessages = messages || [];
 
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
-      return new Response(
-        JSON.stringify({ error: "OpenAI API key not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return jsonBody({ error: "OpenAI API key not configured" }, 500);
     }
 
     const notesFormatted = formatNotesForPrompt(readingNotes);
 
     if (action === "summarize") {
-      const systemPrompt = `당신은 독서 토론을 요약하는 AI입니다. 다음 대화를 바탔으로 「${bookTitle}」에 대한 카드뉴스를 만들어주세요.
+      const systemPrompt = `당신은 독서 토론을 요약하는 AI입니다. 다음 대화를 바탕으로 「${bookTitle}」에 대한 카드뉴스를 만들어주세요.
 
 규칙:
 - 정확히 3장의 카드를 JSON 배열 형식으로 출력하세요.
@@ -125,58 +172,13 @@ Deno.serve(async (req: Request) => {
 - 독자가 남긴 메모와 대화 내용을 반영하여 개인화된 카드를 만드세요.
 ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 메모]\n${notesFormatted}` : ""}`;
 
-      const openaiMessages = [
-        { role: "system" as const, content: systemPrompt },
-        ...safeMessages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-      ];
-
-      const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-        signal: AbortSignal.timeout(30000),
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: openaiMessages,
-          max_tokens: 500,
-          temperature: 0.7,
-        }),
-      });
-
-      if (!openaiRes.ok) {
-        const errText = await openaiRes.text();
-        return new Response(
-          JSON.stringify({ error: `OpenAI API error: ${openaiRes.status}`, detail: errText }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-
-      const data = await openaiRes.json();
-      const reply = data.choices?.[0]?.message?.content;
-
-      if (!reply) {
-        return new Response(
-          JSON.stringify({ error: "Empty response from OpenAI" }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
+      const reply = await callOpenAI(openaiKey, systemPrompt, safeMessages, 500, 0.7);
 
       try {
         const cards = JSON.parse(reply);
-        return new Response(
-          JSON.stringify({ cards }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+        return jsonBody({ cards });
       } catch {
-        return new Response(
-          JSON.stringify({ reply }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+        return jsonBody({ reply });
       }
     }
 
@@ -184,57 +186,18 @@ ${userNote ? `\n책 소개: ${userNote}` : ""}${notesFormatted ? `\n\n[독자 �
     const hasPriorMessages = safeMessages.length > 0;
     const systemPrompt = buildSystemPrompt(bookTitle, bookAuthor, userNote, category, notesFormatted, hasPriorMessages);
 
-    const openaiMessages = [
-      { role: "system" as const, content: systemPrompt },
-      ...safeMessages.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-    ];
+    const reply = await callOpenAI(openaiKey, systemPrompt, safeMessages, 400, 0.8);
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      signal: AbortSignal.timeout(30000),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${openaiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: openaiMessages,
-        max_tokens: 400,
-        temperature: 0.8,
-      }),
-    });
-
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${openaiRes.status}`, detail: errText }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    const data = await openaiRes.json();
-    const reply = data.choices?.[0]?.message?.content;
-
-    if (!reply) {
-      return new Response(
-        JSON.stringify({ error: "Empty response from OpenAI" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    return new Response(
-      JSON.stringify({ reply }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return jsonBody({ reply });
   } catch (err) {
+    if (err instanceof OpenAIError) {
+      return jsonBody({ error: err.message, detail: err.detail }, 502);
+    }
     const message = err instanceof Error ? err.message : "Internal server error";
     const isTimeout = message.includes("timed out") || message.includes("aborted");
-    return new Response(
-      JSON.stringify({ error: isTimeout ? "AI 응답 시간이 초과되었어요. 잠시 후 다시 시도해주세요." : message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    return jsonBody(
+      { error: isTimeout ? "AI 응답 시간이 초과되었어요. 잠시 후 다시 시도해주세요." : message },
+      500,
     );
   }
 });
