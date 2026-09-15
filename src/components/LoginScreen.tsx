@@ -51,7 +51,7 @@ export function LoginScreen() {
             className="h-full w-full rounded-[28px] object-cover"
           />
         </div>
-        <h1 className="mt-5 text-[22px] font-bold tracking-tight">모두의 서재</h1>
+        <h1 className="mt-5 text-[22px] font-bold tracking-tight">WITH BOOK</h1>
       </div>
 
       {error && (
