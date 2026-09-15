@@ -9,7 +9,7 @@ type Props = {
 
 export function BottomNav({ active, onChange }: Props) {
   const tabs: { id: FeedTab; label: string; icon: typeof BookOpen }[] = [
-    { id: 'all', label: '모두의 서재', icon: BookOpen },
+    { id: 'all', label: 'WITHBOOK', icon: BookOpen },
     { id: 'chat', label: 'AI 북챗', icon: Plus },
     { id: 'mine', label: '나의 서재', icon: User },
   ];

@@ -23,7 +23,7 @@ import { supabase } from '@/lib/supabase';
 import type { Book, SearchBook, CurrentlyReading } from '@/types';
 
 const TAB_TITLES: Record<FeedTab, string> = {
-  all: '모두의 서재',
+  all: 'WITHBOOK',
   chat: 'AI 북챗',
   mine: '나의 서재',
 };
